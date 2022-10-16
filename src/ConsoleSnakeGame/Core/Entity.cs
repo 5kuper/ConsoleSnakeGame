@@ -15,7 +15,7 @@ namespace ConsoleSnakeGame
 
         protected Entity() { }
 
-        public event EventHandler<EventArgs>? Cleared;
+        public event EventHandler? Cleared;
 
         protected List<Unit> Units { get; } = new();
 

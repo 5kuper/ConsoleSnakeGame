@@ -19,7 +19,7 @@ namespace ConsoleSnakeGame
         private readonly Unit _head;
 
         public event EventHandler<AteFoodEventArgs>? AteFood;
-        public event EventHandler<EventArgs>? Crashed;
+        public event EventHandler? Crashed;
 
         public IUnit Head => _head;
 
