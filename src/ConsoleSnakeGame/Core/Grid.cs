@@ -49,6 +49,11 @@ namespace ConsoleSnakeGame
 
         public IntVector2 GetNextPosition(IntVector2 direction, IntVector2 point)
         {
+            if (direction == IntVector2.Zero)
+            {
+                throw new ArgumentOutOfRangeException(nameof(direction), "Direction cannot be zero.");
+            }
+
             var absDir = IntVector2.Abs(direction);
 
             if (absDir.X > 1 || absDir.Y > 1)
