@@ -1,7 +1,8 @@
 ﻿using System.ComponentModel;
+using ConsoleSnakeGame.Core.Entities;
 using Utilities.Numerics;
 
-namespace ConsoleSnakeGame
+namespace ConsoleSnakeGame.Core
 {
     internal enum Direction { Up, Down, Left, Right }
 

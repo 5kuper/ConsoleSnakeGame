@@ -1,6 +1,7 @@
-﻿using Utilities.Numerics;
+﻿using ConsoleSnakeGame.Core.Entities;
+using Utilities.Numerics;
 
-namespace ConsoleSnakeGame
+namespace ConsoleSnakeGame.Core.Scenes
 {
     internal class Grassland : Scene<Grassland.Conclusion>
     {
@@ -14,6 +15,7 @@ namespace ConsoleSnakeGame
         public Grassland(CtorArgs args, out Controller snakeController)
             : base(args.TickRate, args.Grid)
         {
+            ArgumentNullException.ThrowIfNull(args, nameof(args));
             _snake = args.Snake ?? throw new ArgumentException("Snake cannot be null.", nameof(args));
 
             _snake.AteFood += Snake_AteFood;

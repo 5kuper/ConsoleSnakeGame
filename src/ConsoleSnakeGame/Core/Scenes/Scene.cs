@@ -1,4 +1,4 @@
-﻿namespace ConsoleSnakeGame
+﻿namespace ConsoleSnakeGame.Core.Scenes
 {
     internal interface IRenderable
     {

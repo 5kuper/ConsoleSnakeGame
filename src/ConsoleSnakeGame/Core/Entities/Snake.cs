@@ -1,6 +1,6 @@
 ﻿using Utilities.Numerics;
 
-namespace ConsoleSnakeGame
+namespace ConsoleSnakeGame.Core.Entities
 {
     internal class Snake : Entity
     {

@@ -1,6 +1,7 @@
-﻿using Utilities.Numerics;
+﻿using ConsoleSnakeGame.Core.Entities;
+using Utilities.Numerics;
 
-namespace ConsoleSnakeGame
+namespace ConsoleSnakeGame.Core
 {
     internal interface IReadOnlyGrid
     {
