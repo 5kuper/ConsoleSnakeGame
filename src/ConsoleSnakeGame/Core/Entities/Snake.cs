@@ -13,26 +13,26 @@ namespace ConsoleSnakeGame.Core.Entities
 
         private const int BodyIndex = 1; // Units next to head
 
-        private readonly int _initialGrowth;
         private readonly int? _finalGrowth;
-
         private readonly Unit _head;
 
         public event EventHandler<AteFoodEventArgs>? AteFood;
         public event EventHandler? Crashed;
 
         public IUnit Head => _head;
-
         public int Growth => Units.Count;
-        public int Score => Growth - _initialGrowth;
 
         public Snake(IntVector2 position, int initialGrowth, int? finalGrowth = null)
         {
-            _initialGrowth = initialGrowth >= 2 ? initialGrowth : throw
-                new ArgumentOutOfRangeException(nameof(initialGrowth), "Growth cannot be less than two (head and tail).");
-
-            _finalGrowth = finalGrowth > initialGrowth ? finalGrowth : throw
-                new ArgumentOutOfRangeException(nameof(finalGrowth), "Final growth must be greater than the initial one.");
+            if (initialGrowth < 2)
+            {
+                throw new ArgumentOutOfRangeException(nameof(initialGrowth), "Growth cannot be less than two (head and tail).");
+            }
+            if (finalGrowth != null)
+            {
+                _finalGrowth = finalGrowth > initialGrowth ? finalGrowth : throw
+                    new ArgumentOutOfRangeException(nameof(finalGrowth), "Final growth must be greater than the initial one.");
+            }
 
             _head = CreateUnit(UnitKind.Snake, position, HeadTag);
 

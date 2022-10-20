@@ -28,7 +28,7 @@ namespace ConsoleSnakeGame.Core
             {
                 Direction.Up => IntVector2.Up, Direction.Down => IntVector2.Down,
                 Direction.Left => IntVector2.Left, Direction.Right => IntVector2.Right,
-                _ => throw new InvalidEnumArgumentException(nameof(dir), (int)dir, dir.GetType()),
+                _ => throw new InvalidEnumArgumentException(nameof(dir), (int)dir, dir.GetType())
             };
             OnDirected(new(vector));
         }
