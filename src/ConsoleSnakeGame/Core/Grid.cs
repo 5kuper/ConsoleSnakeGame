@@ -50,6 +50,24 @@ namespace ConsoleSnakeGame.Core
 
         public IntVector2 GetNextPosition(IntVector2 direction, IntVector2 point)
         {
+#if DEBUG
+            CheckDirection(direction);
+            CheckPoint(point);
+#endif
+
+            var position = direction + point;
+
+            if (position.X < 0) position.X += Width;
+            else if (position.X > Width) position.X -= Width;
+
+            if (position.Y < 0) position.Y += Height;
+            else if (position.Y > Height) position.Y -= Height;
+
+            return position;
+        }
+
+        private static void CheckDirection(IntVector2 direction)
+        {
             if (direction == IntVector2.Zero)
             {
                 throw new ArgumentOutOfRangeException(nameof(direction), "Direction cannot be zero.");
@@ -61,24 +79,21 @@ namespace ConsoleSnakeGame.Core
             {
                 throw new ArgumentOutOfRangeException(nameof(direction), "Direction values must be in range from -1 to 1.");
             }
+        }
 
+        private void CheckPoint(IntVector2 point)
+        {
             if (point.X < 0 || point.X >= Width)
             {
                 throw new ArgumentOutOfRangeException(nameof(point),
                     $"The X must be greater than zero and less than the width of the grid ({Width}).");
             }
+
             if (point.Y < 0 || point.Y >= Height)
             {
                 throw new ArgumentOutOfRangeException(nameof(point),
                     $"The Y must be greater than zero and less than the height of the grid ({Height}).");
             }
-
-            var position = direction + point;
-
-            if (position.X > Width) position.X -= Width;
-            if (position.Y > Height) position.Y -= Height;
-
-            return position;
         }
     }
 }

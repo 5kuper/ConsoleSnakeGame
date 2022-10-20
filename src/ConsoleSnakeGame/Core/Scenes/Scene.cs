@@ -6,7 +6,8 @@
         public IReadOnlyGrid Grid { get; }
     }
 
-    internal abstract class Scene<TConclusion> : IRenderable, IDisposable
+    internal abstract class Scene<TConclusion> : IRenderable, IDisposable, IAsyncDisposable
+        where TConclusion : struct
     {
         private readonly CancellationTokenSource _cts = new();
         private readonly int _tickRate;
@@ -49,20 +50,37 @@
 
         public void Dispose()
         {
-            _cts.Dispose();
-            _isDisposed = true;
+            if (_isDisposed) return;
+
+            _cts.Cancel();
+
+            try
+            {
+                _task?.Wait();
+            }
+            finally
+            {
+                _cts.Dispose();
+                _task?.Dispose();
+                _isDisposed = true;
+            }
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            await Task.Run(() => Dispose());
         }
 
         protected abstract void Update();
 
         protected void Conclude(TConclusion conclusion)
         {
-            _conclusion = conclusion ?? throw new ArgumentNullException(nameof(conclusion));
+            _conclusion = conclusion;
         }
 
         private TConclusion Loop()
         {
-            var delay = TimeSpan.FromSeconds(1 / _tickRate);
+            var delay = TimeSpan.FromSeconds(1.0 / _tickRate);
 
             while (_conclusion is null)
             {
@@ -75,7 +93,7 @@
                 Thread.Sleep(delay);
             }
 
-            return _conclusion;
+            return _conclusion.Value;
         }
 
         protected virtual void OnUpdated(EventArgs e)
