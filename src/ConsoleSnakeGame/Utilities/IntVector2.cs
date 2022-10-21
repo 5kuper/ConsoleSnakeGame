@@ -27,6 +27,18 @@ internal struct IntVector2 : IEquatable<IntVector2>
         return new(Math.Abs(value.X), Math.Abs(value.Y));
     }
 
+    public static float Distance(IntVector2 a, IntVector2 b)
+    {
+        var square = DistanceSquared(a, b);
+        return MathF.Sqrt(square);
+    }
+
+    public static float DistanceSquared(IntVector2 a, IntVector2 b)
+    {
+        var diff = a - b;
+        return Dot(diff, diff);
+    }
+
     public static int Dot(IntVector2 a, IntVector2 b)
     {
         return (a.X * b.X) + (a.Y * b.Y);

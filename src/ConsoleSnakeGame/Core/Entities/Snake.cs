@@ -6,12 +6,17 @@ namespace ConsoleSnakeGame.Core.Entities
     {
         public record AteFoodEventArgs(bool IsSnakeSatisfied);
 
+        public const string HeadTag = "head";
         public const string CrashTag = "crash";
 
-        public const string HeadTag = "head";
-        public const string TailTag = "tail";
-
         private const int BodyIndex = 1; // Units next to head
+
+        public static readonly IReadOnlyDictionary<IntVector2, string> TailTags
+            = new Dictionary<IntVector2, string>()
+        {
+            { IntVector2.Up, "tail-up" }, { IntVector2.Down, "tail-down" },
+            { IntVector2.Left, "tail-left" }, { IntVector2.Right, "tail-right" }
+        };
 
         private readonly int? _finalGrowth;
         private readonly Unit _head;
@@ -41,8 +46,7 @@ namespace ConsoleSnakeGame.Core.Entities
                 CreateUnit(UnitKind.Snake, new IntVector2(position.X, ++position.Y));
             }
 
-            var tail = Units.Last();
-            tail.Tags.Add(TailTag);
+            DefineTail();
         }
 
         public void MoveTo(IUnit target)
@@ -62,15 +66,14 @@ namespace ConsoleSnakeGame.Core.Entities
 
         public void MoveTo(IntVector2 position)
         {
-            var tail = Units.First(u => u.Tags.Contains(TailTag));
-            tail.Tags.Remove(TailTag);
-
+            var tail = Units.Last();
+            tail.Tags.RemoveAll(t => TailTags.Any(p => p.Value == t));
+            
             tail.Position = _head.Position;
             ChangeUnitIndex(tail, BodyIndex);
             _head.Position = position;
 
-            var nowTail = Units.Last();
-            nowTail.Tags.Add(TailTag);
+            DefineTail();
         }
 
         private void Eat(Unit food)
@@ -89,6 +92,30 @@ namespace ConsoleSnakeGame.Core.Entities
         {
             causeOfPain.Tags.Add(CrashTag);
             OnCrashed(EventArgs.Empty);
+        }
+
+        private void DefineTail()
+        {
+            var nowTail = Units.Last();
+            var nextPos = Units[^2].Position;
+            var tailDirection = new IntVector2();
+
+            if (nowTail.Position.X == nextPos.X)
+            {
+                tailDirection = nowTail.Position.Y < nextPos.Y ? IntVector2.Up : IntVector2.Down;
+            }
+            else if (nowTail.Position.Y == nextPos.Y)
+            {
+                tailDirection = nowTail.Position.X < nextPos.X ? IntVector2.Left : IntVector2.Right;
+            }
+
+            if (IntVector2.DistanceSquared(nowTail.Position, nextPos) > 1)
+            {
+                // The tail and the unit next to it are on opposite edges of a grid
+                tailDirection = -tailDirection;
+            }
+
+            nowTail.Tags.Add(TailTags[tailDirection]);
         }
 
         private void ChangeUnitIndex(Unit unit, int index)

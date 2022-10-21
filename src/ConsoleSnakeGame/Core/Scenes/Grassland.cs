@@ -49,7 +49,7 @@ namespace ConsoleSnakeGame.Core.Scenes
             var position = Grid.GetNextPosition(direction, _snake.Head.Position);
             var unit = Grid[position];
 
-            Console.WriteLine(((System.Numerics.Vector2)position).ToString());
+            Console.WriteLine((System.Numerics.Vector2)position);
 
             if (unit is not null)
             {
