@@ -7,7 +7,7 @@
 
         public UserInput(Controller controller)
         {
-            _controller = controller;
+            _controller = controller ?? throw new ArgumentNullException(nameof(controller));
         }
 
         public async Task HandleAsync(CancellationToken cancellationToken = default)

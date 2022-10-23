@@ -58,10 +58,10 @@ namespace ConsoleSnakeGame.Core
             var position = direction + point;
 
             if (position.X < 0) position.X += Width;
-            else if (position.X > Width) position.X -= Width;
+            else if (position.X == Width) position.X -= Width;
 
             if (position.Y < 0) position.Y += Height;
-            else if (position.Y > Height) position.Y -= Height;
+            else if (position.Y == Height) position.Y -= Height;
 
             return position;
         }
@@ -86,13 +86,13 @@ namespace ConsoleSnakeGame.Core
             if (point.X < 0 || point.X >= Width)
             {
                 throw new ArgumentOutOfRangeException(nameof(point),
-                    $"The X must be greater than zero and less than the width of the grid ({Width}).");
+                    $"The X must be non-negative and less than the width of the grid ({Width}).");
             }
 
             if (point.Y < 0 || point.Y >= Height)
             {
                 throw new ArgumentOutOfRangeException(nameof(point),
-                    $"The Y must be greater than zero and less than the height of the grid ({Height}).");
+                    $"The Y must be non-negative and less than the height of the grid ({Height}).");
             }
         }
     }

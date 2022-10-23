@@ -1,11 +1,12 @@
 ﻿using System.Runtime.CompilerServices;
 using ConsoleSnakeGame.Core.Entities;
+using ConsoleSnakeGame.Core.Rendering;
 using ConsoleSnakeGame.Core.Scenes;
 using Utilities.Numerics;
 
 namespace ConsoleSnakeGame.Core
 {
-    internal class Game
+    internal record Game(Settings Settings)
     {
         public enum Status { Win, Loss }
 
@@ -14,13 +15,6 @@ namespace ConsoleSnakeGame.Core
         private Action? _sceneTerminator;
         private Task<Result>? _task;
 
-        public Game(Rules rules)
-        {
-            Rules = rules ?? throw new ArgumentNullException(nameof(rules));
-        }
-
-        public Rules Rules { get; }
-
         public void Start()
         {
             if (_task is { IsCompleted: false })
@@ -28,12 +22,13 @@ namespace ConsoleSnakeGame.Core
                 throw new InvalidOperationException("The game is already running.");
             }
 
-            var grid = new Grid(Rules.GridWidth, Rules.GridHeight);
+            var grid = new Grid(Settings.GridWidth, Settings.GridHeight);
             var position = new IntVector2(grid.Width / 2, grid.Height / 2);
-            var snake = new Snake(position, Rules.InitialSnakeGrowth, Rules.FinalSnakeGrowth);
+            var snake = new Snake(position, Settings.InitialSnakeGrowth, Settings.FinalSnakeGrowth);
 
-            var scene = new Grassland(new(Rules.TickRate, grid, snake), out var snakeController);
+            var scene = new Grassland(new(Settings.TickRate, grid, snake), out var snakeController);
             _sceneTerminator = scene.Terminate;
+            CreateRenderer(scene);
 
             var input = new UserInput(snakeController);
             var cts = new CancellationTokenSource();
@@ -61,6 +56,24 @@ namespace ConsoleSnakeGame.Core
             _sceneTerminator?.Invoke();
         }
 
+        private void CreateRenderer(IRenderable target)
+        {
+            List<RenderingRule<ConsoleColor>> colorRules = new(Settings.SnakeColorRules)
+            {
+                RenderingRules.FoodColorRule, RenderingRules.ObstacleColorRule
+            };
+
+            colorRules.Insert(0, RenderingRules.CrashColorRule);
+
+            List<RenderingRule<char>> characterRules = new(RenderingRules.SnakeCharacterRules)
+            {
+                RenderingRules.FoodCharacterRule, RenderingRules.ObstacleCharacterRule
+            };
+
+            var renderer = new TextRenderer(characterRules, colorRules);
+            renderer.SetTarget(target);
+        }
+
         private async Task<Result> ProcessAsync(Grassland scene, Snake snake)
         {
             Grassland.Conclusion conclusion;
@@ -79,7 +92,7 @@ namespace ConsoleSnakeGame.Core
             }
 
             var status = conclusion is Grassland.Conclusion.SnakeSatisfied ? Status.Win : Status.Loss;
-            var score = snake.Growth - Rules.InitialSnakeGrowth;
+            var score = snake.Growth - Settings.InitialSnakeGrowth;
 
             return new(status, score);
         }
