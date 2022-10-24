@@ -1,5 +1,6 @@
 ﻿using ConsoleSnakeGame.Core.Entities;
 using ConsoleSnakeGame.Core.Scenes;
+using Utilities.Text;
 
 namespace ConsoleSnakeGame.Core.Rendering
 {
@@ -26,6 +27,7 @@ namespace ConsoleSnakeGame.Core.Rendering
         private const char HorizontalElement = '║';
 
         private IRenderable _target = null!;
+        private ConsoleCanvas _canvas = null!;
 
         public void SetTarget(IRenderable value)
         {
@@ -34,47 +36,44 @@ namespace ConsoleSnakeGame.Core.Rendering
             if (_target != null) _target.Updated -= Target_Updated;
 
             _target = value;
+
+            // +2 because of frame around the grid
+            var canvasWidth = _target.Grid.Width + SpacesPerLine + 2;
+            _canvas = new ConsoleCanvas(canvasWidth, _target.Grid.Height + 2);
+
             _target.Updated += Target_Updated;
         }
 
-        private string VerticalLine => new('═', _target.Grid.Width * 2 + 1);
+        private int SpacesPerLine => _target.Grid.Width + 1;
+        private string VerticalLine => new('═', _target.Grid.Width + SpacesPerLine);
 
         private string UpperBorder => '╔' + VerticalLine + '╗';
         private string LowerBorder => '╚' + VerticalLine + '╝';
 
-        private static void WriteColored(char character, ConsoleColor color)
-        {
-            var previousColor = Console.ForegroundColor;
-            Console.ForegroundColor = color;
-
-            Console.Write(character);
-
-            Console.ForegroundColor = previousColor;
-        }
-
         private void Render()
         {
-            Console.Clear();
-            Console.WriteLine(UpperBorder);
+            _canvas.Clear();
+            _canvas.WriteLine(UpperBorder);
 
             for (int y = 0; y < _target.Grid.Height; y++)
             {
-                Console.Write(HorizontalElement + " ");
+                _canvas.Write(HorizontalElement + " ");
 
                 for (int x = 0; x < _target.Grid.Width; x++)
                 {
                     var unit = _target.Grid[new(x, y)];
 
                     if (unit != null) WriteUnit(unit);
-                    else WriteColored(VoidElement, ConsoleColor.DarkGray);
+                    else _canvas.Write(VoidElement, new(ConsoleColor.DarkGray));
 
-                    Console.Write(" ");
+                    _canvas.Write(" ");
                 }
 
-                Console.WriteLine(HorizontalElement);
+                _canvas.WriteLine(HorizontalElement);
             }
 
-            Console.Write(LowerBorder);
+            _canvas.Write(LowerBorder);
+            _canvas.Display();
         }
 
         private void WriteUnit(IUnit value)
@@ -82,7 +81,7 @@ namespace ConsoleSnakeGame.Core.Rendering
             var characterRule = CharacterRules.First(r => r.IsSuitableFor(value));
             var colorRule = ColorRules.First(r => r.IsSuitableFor(value));
 
-            WriteColored(characterRule.Value, colorRule.Value);
+            _canvas.Write(characterRule.Value, new(colorRule.Value));
         }
     }
 }

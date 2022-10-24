@@ -28,7 +28,7 @@ namespace ConsoleSnakeGame.Core
 
             var scene = new Grassland(new(Settings.TickRate, grid, snake), out var snakeController);
             _sceneTerminator = scene.Terminate;
-            CreateRenderer(scene);
+            InitiateRendering(scene);
 
             var input = new UserInput(snakeController);
             var cts = new CancellationTokenSource();
@@ -56,8 +56,10 @@ namespace ConsoleSnakeGame.Core
             _sceneTerminator?.Invoke();
         }
 
-        private void CreateRenderer(IRenderable target)
+        private void InitiateRendering(IRenderable target)
         {
+            Console.CursorVisible = false;
+
             List<RenderingRule<ConsoleColor>> colorRules = new(Settings.SnakeColorRules)
             {
                 RenderingRules.FoodColorRule, RenderingRules.ObstacleColorRule
