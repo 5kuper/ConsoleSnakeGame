@@ -22,7 +22,11 @@ namespace ConsoleSnakeGame.Core.Scenes
             _snake.AteFood += Snake_AteFood;
             _snake.Crashed += Snake_Crashed;
 
-            snakeController = new(_snake.Head, Grid, (_, e) => _controllerDirection = e.Direction);
+            snakeController = new(_snake.Head, Grid, (_, e) =>
+            {
+                if (IsPaused) return;
+                _controllerDirection = e.Direction;
+            });
 
             EditableGrid.AddEntity(_snake);
             SpawnFood();

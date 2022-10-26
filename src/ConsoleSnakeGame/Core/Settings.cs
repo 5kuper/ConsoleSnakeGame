@@ -10,7 +10,7 @@ namespace ConsoleSnakeGame.Core
 
         public Settings() => FinalSnakeGrowth = GridWidth * GridHeight;
 
-        public int TickRate { get; init; } = 12;
+        public int TickRate { get; init; } = 5;
 
         public int GridWidth { get; init; } = 20;
         public int GridHeight { get; init; } = 15;

@@ -1,6 +1,18 @@
 ﻿namespace Utilities.Text;
 
-public record struct ConsoleColors(ConsoleColor? Foreground = null, ConsoleColor? Background = null);
+internal record struct ConsoleColors(ConsoleColor? Foreground = null, ConsoleColor? Background = null)
+{
+    public static ConsoleColors Current = new(Console.ForegroundColor, Console.BackgroundColor);
+
+    public void Apply()
+    {
+        if (Foreground is not null && Console.ForegroundColor != Foreground)
+            Console.ForegroundColor = Foreground.Value;
+
+        if (Background is not null && Console.BackgroundColor != Background)
+            Console.BackgroundColor = Background.Value;
+    }
+}
 
 internal class ConsoleCanvas
 {
@@ -9,11 +21,19 @@ internal class ConsoleCanvas
     private ColoredCharacter[,] _buffer;
     private (int Col, int Row) _pos;
 
-    public ConsoleCanvas(int initialWidth = 0, int initialHeight = 0)
+    public ConsoleCanvas(int initialWidth = 0, int initialHeight = 0,
+        (int Cols, int Rows) offset = default)
     {
+        if (offset.Cols < 0 || offset.Rows < 0)
+            throw new ArgumentOutOfRangeException(nameof(offset), "Offset values cannot be less than zero.");
+
+        Offset = offset;
+
         CheckSize(initialWidth, initialHeight);
         _buffer = new ColoredCharacter[initialWidth, initialHeight];
     }
+
+    public (int Cols, int Rows) Offset { get; }
 
     public int Width => _buffer.GetLength(0);
     public int Height => _buffer.GetLength(1);
@@ -24,23 +44,21 @@ internal class ConsoleCanvas
         {
             for (int col = 0; col < Width; col++)
             {
+                try
+                {
+                    Console.SetCursorPosition(col + Offset.Cols, row + Offset.Rows);
+                }
+                catch (ArgumentOutOfRangeException)
+                {
+                    throw new ConsoleBufferException("Console buffer size is too small.");
+                }
+
                 var chr = _buffer[col, row];
+                var prevColors = ConsoleColors.Current;
 
-                var prevForegroundColor = Console.ForegroundColor;
-
-                if (chr.Colors.Foreground != null)
-                    Console.ForegroundColor = chr.Colors.Foreground.Value;
-
-                var prevBackgroundColor = Console.BackgroundColor;
-
-                if (chr.Colors.Background != null)
-                    Console.BackgroundColor = chr.Colors.Background.Value;
-
-                Console.SetCursorPosition(col, row);
+                chr.Colors.Apply();
                 Console.Write(chr.Value);
-
-                Console.ForegroundColor = prevForegroundColor;
-                Console.BackgroundColor = prevBackgroundColor;
+                prevColors.Apply();
             }
         }
     }
@@ -77,13 +95,15 @@ internal class ConsoleCanvas
         BreakLine();
     }
 
-    private static void CheckSize(int width, int height)
+    private void CheckSize(int width, int height)
     {
-        if (width > Console.BufferWidth)
-            throw new InvalidOperationException("Canvas width cannot be greater than console buffer width.");
+        var str = Offset != default ? " + offset" : string.Empty;
 
-        if (height > Console.BufferHeight)
-            throw new InvalidOperationException("Canvas height cannot be greater than console buffer height.");
+        if (width + Offset.Cols > Console.BufferWidth)
+            throw new InvalidOperationException($"Canvas width{str} cannot be greater than console buffer width.");
+
+        if (height + Offset.Rows > Console.BufferHeight)
+            throw new InvalidOperationException($"Canvas height{str} cannot be greater than console buffer height.");
     }
 
     private void BreakLine()
@@ -106,4 +126,13 @@ internal class ConsoleCanvas
 
         _buffer = newArray;
     }
+}
+
+internal class ConsoleBufferException : Exception
+{
+    public ConsoleBufferException() { }
+
+    public ConsoleBufferException(string? message) : base(message) { }
+
+    public ConsoleBufferException(string? message, Exception? innerException) : base(message, innerException) { }
 }

@@ -3,11 +3,13 @@
     internal class UserInput
     {
         private readonly Controller _controller;
+        private readonly Action _pauseToggle;
         private bool _isTaskRunnig;
 
-        public UserInput(Controller controller)
+        public UserInput(Controller controller, Action pauseTogle)
         {
             _controller = controller ?? throw new ArgumentNullException(nameof(controller));
+            _pauseToggle = pauseTogle ?? throw new ArgumentNullException(nameof(pauseTogle));
         }
 
         public async Task HandleAsync(CancellationToken cancellationToken = default)
@@ -40,6 +42,9 @@
                     case ConsoleKey.RightArrow:
                         _controller.Direct(Direction.Right);
                         break;
+                    case ConsoleKey.Enter:
+                        _pauseToggle();
+                    break;
                 }
             }
 

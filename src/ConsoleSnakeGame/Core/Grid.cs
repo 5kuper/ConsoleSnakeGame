@@ -35,6 +35,9 @@ namespace ConsoleSnakeGame.Core
         {
             get
             {
+#if DEBUG
+                CheckPoint(position);
+#endif
                 bool IsMatching(IUnit u) => u.Position == position;
                 var entity = _entities.Find(e => e.Any(IsMatching));
                 return entity?.First(IsMatching);

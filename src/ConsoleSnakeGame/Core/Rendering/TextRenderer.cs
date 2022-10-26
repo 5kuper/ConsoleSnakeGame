@@ -39,10 +39,13 @@ namespace ConsoleSnakeGame.Core.Rendering
 
             // +2 because of frame around the grid
             var canvasWidth = _target.Grid.Width + SpacesPerLine + 2;
-            _canvas = new ConsoleCanvas(canvasWidth, _target.Grid.Height + 2);
+            var canvasHeight = _target.Grid.Height + 2;
+            _canvas = new ConsoleCanvas(canvasWidth, canvasHeight, (3, 1));
 
             _target.Updated += Target_Updated;
         }
+
+        public event EventHandler? ErrorOccurred;
 
         private int SpacesPerLine => _target.Grid.Width + 1;
         private string VerticalLine => new('═', _target.Grid.Width + SpacesPerLine);
@@ -52,6 +55,8 @@ namespace ConsoleSnakeGame.Core.Rendering
 
         private void Render()
         {
+            Console.CursorVisible = false;
+
             _canvas.Clear();
             _canvas.WriteLine(UpperBorder);
 
@@ -73,7 +78,16 @@ namespace ConsoleSnakeGame.Core.Rendering
             }
 
             _canvas.Write(LowerBorder);
-            _canvas.Display();
+
+            try
+            {
+                _canvas.Display();
+            }
+            catch (ConsoleBufferException)
+            {
+                Console.Clear();
+                OnErrorOccurred(EventArgs.Empty);
+            }
         }
 
         private void WriteUnit(IUnit value)
@@ -82,6 +96,11 @@ namespace ConsoleSnakeGame.Core.Rendering
             var colorRule = ColorRules.First(r => r.IsSuitableFor(value));
 
             _canvas.Write(characterRule.Value, new(colorRule.Value));
+        }
+
+        protected virtual void OnErrorOccurred(EventArgs e)
+        {
+            ErrorOccurred?.Invoke(this, e);
         }
     }
 }

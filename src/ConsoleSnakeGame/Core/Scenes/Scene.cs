@@ -1,4 +1,6 @@
-﻿namespace ConsoleSnakeGame.Core.Scenes
+﻿using System.Diagnostics;
+
+namespace ConsoleSnakeGame.Core.Scenes
 {
     internal interface IRenderable
     {
@@ -10,6 +12,7 @@
         where TConclusion : struct
     {
         private readonly CancellationTokenSource _cts = new();
+        private readonly Stopwatch _stopwatch = new();
         private readonly int _tickRate;
 
         private Task<TConclusion>? _task;
@@ -80,17 +83,22 @@
 
         private TConclusion Loop()
         {
-            var delay = TimeSpan.FromSeconds(1.0 / _tickRate);
+            var period = TimeSpan.FromSeconds(1.0 / _tickRate);
 
             while (_conclusion is null)
             {
                 _cts.Token.ThrowIfCancellationRequested();
                 if (IsPaused) continue;
 
+                _stopwatch.Restart();
+
                 Update();
                 OnUpdated(EventArgs.Empty);
 
-                Thread.Sleep(delay);
+                var delay = period - _stopwatch.Elapsed;
+
+                if (delay > TimeSpan.Zero)
+                    Thread.Sleep(delay);
             }
 
             return _conclusion.Value;

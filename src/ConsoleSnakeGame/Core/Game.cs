@@ -30,7 +30,7 @@ namespace ConsoleSnakeGame.Core
             _sceneTerminator = scene.Terminate;
             InitiateRendering(scene);
 
-            var input = new UserInput(snakeController);
+            var input = new UserInput(snakeController, () => scene.IsPaused = !scene.IsPaused);
             var cts = new CancellationTokenSource();
 
             var inputTask = input.HandleAsync(cts.Token);
@@ -56,10 +56,8 @@ namespace ConsoleSnakeGame.Core
             _sceneTerminator?.Invoke();
         }
 
-        private void InitiateRendering(IRenderable target)
+        private void InitiateRendering(Grassland scene)
         {
-            Console.CursorVisible = false;
-
             List<RenderingRule<ConsoleColor>> colorRules = new(Settings.SnakeColorRules)
             {
                 RenderingRules.FoodColorRule, RenderingRules.ObstacleColorRule
@@ -73,7 +71,8 @@ namespace ConsoleSnakeGame.Core
             };
 
             var renderer = new TextRenderer(characterRules, colorRules);
-            renderer.SetTarget(target);
+            renderer.ErrorOccurred += (_, _) => scene.IsPaused = true;
+            renderer.SetTarget(scene);
         }
 
         private async Task<Result> ProcessAsync(Grassland scene, Snake snake)
