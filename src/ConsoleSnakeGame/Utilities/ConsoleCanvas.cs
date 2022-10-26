@@ -2,7 +2,7 @@
 
 internal record struct ConsoleColors(ConsoleColor? Foreground = null, ConsoleColor? Background = null)
 {
-    public static ConsoleColors Current = new(Console.ForegroundColor, Console.BackgroundColor);
+    public static ConsoleColors Current => new(Console.ForegroundColor, Console.BackgroundColor);
 
     public void Apply()
     {
