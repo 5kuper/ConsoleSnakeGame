@@ -36,18 +36,20 @@ namespace ConsoleSnakeGame.Core.Rendering
             if (_target != null) _target.Updated -= Target_Updated;
 
             _target = value;
-
-            // +2 because of frame around the grid
-            var canvasWidth = _target.Grid.Width + SpacesPerLine + 2;
-            var canvasHeight = _target.Grid.Height + 2;
-            _canvas = new ConsoleCanvas(canvasWidth, canvasHeight, (3, 1));
+            _canvas = new ConsoleCanvas(ColumnsNumber, _target.Grid.Height, (3, 1));
 
             _target.Updated += Target_Updated;
         }
 
         public event EventHandler? ErrorOccurred;
 
+        public InfoPanel? InfoPanel { get; set; }
+
+        // +2 because of frame around the grid
+        private int ColumnsNumber => _target.Grid.Width + SpacesPerLine + 2;
+
         private int SpacesPerLine => _target.Grid.Width + 1;
+
         private string VerticalLine => new('═', _target.Grid.Width + SpacesPerLine);
 
         private string UpperBorder => '╔' + VerticalLine + '╗';
@@ -56,8 +58,16 @@ namespace ConsoleSnakeGame.Core.Rendering
         private void Render()
         {
             Console.CursorVisible = false;
-
             _canvas.Clear();
+
+            if (InfoPanel is not null)
+            {
+                foreach (var line in InfoPanel.GetText(ColumnsNumber))
+                {
+                    _canvas.WriteLine(line, new(ConsoleColor.White));
+                }
+            }
+
             _canvas.WriteLine(UpperBorder);
 
             for (int y = 0; y < _target.Grid.Height; y++)

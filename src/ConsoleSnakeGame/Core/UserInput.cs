@@ -1,9 +1,14 @@
-﻿namespace ConsoleSnakeGame.Core
+﻿using System.Diagnostics;
+
+namespace ConsoleSnakeGame.Core
 {
     internal class UserInput
     {
+        private readonly Stopwatch _stopwatch = Stopwatch.StartNew();
+
         private readonly Controller _controller;
         private readonly Action _pauseToggle;
+
         private bool _isTaskRunnig;
 
         public UserInput(Controller controller, Action pauseTogle)
@@ -28,7 +33,7 @@
         {
             while (!cancellationToken.IsCancellationRequested)
             {
-                switch (Console.ReadKey().Key)
+                switch (Console.ReadKey(true).Key)
                 {
                     case ConsoleKey.UpArrow:
                         _controller.Direct(Direction.Up);
@@ -43,7 +48,11 @@
                         _controller.Direct(Direction.Right);
                         break;
                     case ConsoleKey.Enter:
-                        _pauseToggle();
+                        if (_stopwatch.ElapsedMilliseconds > 500)
+                        {
+                            _pauseToggle();
+                            _stopwatch.Restart();
+                        }
                     break;
                 }
             }

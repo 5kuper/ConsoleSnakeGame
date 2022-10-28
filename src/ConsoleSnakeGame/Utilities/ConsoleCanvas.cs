@@ -35,14 +35,14 @@ internal class ConsoleCanvas
 
     public (int Cols, int Rows) Offset { get; }
 
-    public int Width => _buffer.GetLength(0);
-    public int Height => _buffer.GetLength(1);
+    private int BufferWidth => _buffer.GetLength(0);
+    private int BufferHeight => _buffer.GetLength(1);
 
     public void Display()
     {
-        for (int row = 0; row < Height; row++)
+        for (int row = 0; row < BufferHeight; row++)
         {
-            for (int col = 0; col < Width; col++)
+            for (int col = 0; col < BufferWidth; col++)
             {
                 try
                 {
@@ -65,7 +65,7 @@ internal class ConsoleCanvas
 
     public void Clear()
     {
-        _buffer = new ColoredCharacter[Width, Height];
+        _buffer = new ColoredCharacter[BufferWidth, BufferHeight];
         _pos = default;
     }
 
@@ -73,8 +73,8 @@ internal class ConsoleCanvas
     {
         _buffer[_pos.Col, _pos.Row] = new(character, colors);
 
-        if (++_pos.Col == Width)
-            ExpandBuffer(Width + 1, Height);
+        if (++_pos.Col == BufferWidth)
+            ExpandBuffer(BufferWidth + 1, BufferHeight);
     }
 
     public void Write(string characters, ConsoleColors colors = default)
@@ -110,8 +110,8 @@ internal class ConsoleCanvas
     {
         _pos.Col = 0;
 
-        if (++_pos.Row == Height)
-            ExpandBuffer(Width, Height + 1);
+        if (++_pos.Row == BufferHeight)
+            ExpandBuffer(BufferWidth, BufferHeight + 1);
     }
 
     private void ExpandBuffer(int newWidth, int newHeight)
@@ -119,9 +119,9 @@ internal class ConsoleCanvas
         CheckSize(newWidth, newHeight);
         var newArray = new ColoredCharacter[newWidth, newHeight];
 
-        for (int i = 0; i < Width; i++)
+        for (int i = 0; i < BufferWidth; i++)
         {
-            Array.Copy(_buffer, i * Height, newArray, i * newHeight, Height);
+            Array.Copy(_buffer, i * BufferHeight, newArray, i * newHeight, BufferHeight);
         }
 
         _buffer = newArray;

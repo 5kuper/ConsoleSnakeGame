@@ -9,7 +9,6 @@ namespace ConsoleSnakeGame.Core.Scenes
 
         public record CtorArgs(int TickRate, Grid Grid, Snake Snake);
 
-        private readonly Snake _snake;
         private IntVector2 _controllerDirection = IntVector2.Up;
         private IntVector2 _lastUsedDirectoin;
 
@@ -17,20 +16,22 @@ namespace ConsoleSnakeGame.Core.Scenes
             : base(args.TickRate, args.Grid)
         {
             ArgumentNullException.ThrowIfNull(args, nameof(args));
-            _snake = args.Snake ?? throw new ArgumentException("Snake cannot be null.", nameof(args));
+            Snake = args.Snake ?? throw new ArgumentException("Snake cannot be null.", nameof(args));
 
-            _snake.AteFood += Snake_AteFood;
-            _snake.Crashed += Snake_Crashed;
+            Snake.AteFood += Snake_AteFood;
+            Snake.Crashed += Snake_Crashed;
 
-            snakeController = new(_snake.Head, Grid, (_, e) =>
+            snakeController = new(Snake.Head, Grid, (_, e) =>
             {
                 if (IsPaused) return;
                 _controllerDirection = e.Direction;
             });
 
-            EditableGrid.AddEntity(_snake);
+            EditableGrid.AddEntity(Snake);
             SpawnFood();
         }
+
+        public Snake Snake { get; }
 
         protected override void Update()
         {
@@ -50,16 +51,16 @@ namespace ConsoleSnakeGame.Core.Scenes
 
         private void MoveSnake(IntVector2 direction)
         {
-            var position = Grid.GetNextPosition(direction, _snake.Head.Position);
+            var position = Grid.GetNextPosition(direction, Snake.Head.Position);
             var unit = Grid[position];
 
             if (unit is not null)
             {
-                _snake.MoveTo(unit);
+                Snake.MoveTo(unit);
             }
             else
             {
-                _snake.MoveTo(position);
+                Snake.MoveTo(position);
             }
         }
 
