@@ -19,8 +19,8 @@ namespace ConsoleSnakeGame.Core.Rendering
 
         public IEnumerable<string> GetText(int maxLineLength)
         {
-            if (maxLineLength <= 0)
-                throw new ArgumentOutOfRangeException(nameof(maxLineLength), "Length must be greater that zero.");
+            if (maxLineLength < 3) // Because of ellipsis
+                throw new ArgumentOutOfRangeException(nameof(maxLineLength), "Length cannot be less than three.");
 
             return _cached?.MaxLineLength == maxLineLength ? _cached.Value.Text : BuildText(maxLineLength);
         }
