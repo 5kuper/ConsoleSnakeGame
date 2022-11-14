@@ -1,4 +1,5 @@
 ﻿using ConsoleSnakeGame.Core.Entities;
+using ConsoleSnakeGame.Core.Players;
 using Utilities.Numerics;
 
 namespace ConsoleSnakeGame.Core.Scenes
@@ -12,7 +13,7 @@ namespace ConsoleSnakeGame.Core.Scenes
         private IntVector2 _controllerDirection = IntVector2.Up;
         private IntVector2 _lastUsedDirectoin;
 
-        public Grassland(CtorArgs args, out Controller snakeController)
+        public Grassland(CtorArgs args, out Player.Controller snakeController)
             : base(args.TickRate, args.Grid)
         {
             ArgumentNullException.ThrowIfNull(args, nameof(args));

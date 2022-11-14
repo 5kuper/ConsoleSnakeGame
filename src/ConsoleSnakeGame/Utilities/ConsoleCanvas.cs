@@ -38,27 +38,32 @@ internal class ConsoleCanvas
     private int BufferWidth => _buffer.GetLength(0);
     private int BufferHeight => _buffer.GetLength(1);
 
-    public void Display()
+    public void Display(bool hideCursor = false)
     {
-        for (int row = 0; row < BufferHeight; row++)
+        lock (Console.Out)
         {
-            for (int col = 0; col < BufferWidth; col++)
+            Console.CursorVisible = !hideCursor;
+
+            for (int row = 0; row < BufferHeight; row++)
             {
-                try
+                for (int col = 0; col < BufferWidth; col++)
                 {
-                    Console.SetCursorPosition(col + Offset.Cols, row + Offset.Rows);
-                }
-                catch (ArgumentOutOfRangeException)
-                {
-                    throw new ConsoleBufferException("Console buffer size is too small.");
-                }
+                    try
+                    {
+                        Console.SetCursorPosition(col + Offset.Cols, row + Offset.Rows);
+                    }
+                    catch (ArgumentOutOfRangeException)
+                    {
+                        throw new ConsoleBufferException("Console buffer size is too small.");
+                    }
 
-                var chr = _buffer[col, row];
-                var prevColors = ConsoleColors.Current;
+                    var chr = _buffer[col, row];
+                    var prevColors = ConsoleColors.Current;
 
-                chr.Colors.Apply();
-                Console.Write(chr.Value);
-                prevColors.Apply();
+                    chr.Colors.Apply();
+                    Console.Write(chr.Value);
+                    prevColors.Apply();
+                }
             }
         }
     }

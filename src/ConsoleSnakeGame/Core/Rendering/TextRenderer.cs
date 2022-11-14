@@ -57,7 +57,6 @@ namespace ConsoleSnakeGame.Core.Rendering
 
         private void Render()
         {
-            Console.CursorVisible = false;
             _canvas.Clear();
 
             if (InfoPanel is not null)
@@ -91,7 +90,7 @@ namespace ConsoleSnakeGame.Core.Rendering
 
             try
             {
-                _canvas.Display();
+                _canvas.Display(true);
             }
             catch (ConsoleBufferException)
             {

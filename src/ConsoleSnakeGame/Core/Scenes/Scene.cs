@@ -61,6 +61,10 @@ namespace ConsoleSnakeGame.Core.Scenes
             {
                 _task?.Wait();
             }
+            catch (AggregateException a)
+            {
+                a.Handle(e => e is OperationCanceledException);
+            }
             finally
             {
                 _cts.Dispose();

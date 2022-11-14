@@ -2,19 +2,28 @@
 
 namespace ConsoleSnakeGame.Core
 {
+    public record KeyEventArgs(ConsoleKeyInfo Info);
+
     internal class UserInput
     {
         private readonly Stopwatch _stopwatch = Stopwatch.StartNew();
 
-        private readonly Controller _controller;
         private readonly Action _pauseToggle;
+        private readonly Action<bool> _pauseSetter;
+
+        private readonly Action _sceneTerminator;
 
         private bool _isTaskRunnig;
+        private bool _isGameCancelling;
 
-        public UserInput(Controller controller, Action pauseTogle)
+        public event EventHandler<KeyEventArgs>? KeyUnhandled;
+
+        public UserInput(Action pauseTogle, Action<bool> pauseSetter, Action sceneTerminator)
         {
-            _controller = controller ?? throw new ArgumentNullException(nameof(controller));
             _pauseToggle = pauseTogle ?? throw new ArgumentNullException(nameof(pauseTogle));
+            _pauseSetter = pauseSetter ?? throw new ArgumentNullException(nameof(pauseSetter));
+
+            _sceneTerminator = sceneTerminator ?? throw new ArgumentNullException(nameof(sceneTerminator));
         }
 
         public async Task HandleAsync(CancellationToken cancellationToken = default)
@@ -31,34 +40,71 @@ namespace ConsoleSnakeGame.Core
 
         private void Handle(CancellationToken cancellationToken)
         {
+            Console.TreatControlCAsInput = true;
+
             while (!cancellationToken.IsCancellationRequested)
             {
-                switch (Console.ReadKey(true).Key)
+                var ki = Console.ReadKey(!_isGameCancelling);
+
+                switch (ki)
                 {
-                    case ConsoleKey.UpArrow:
-                        _controller.Direct(Direction.Up);
+                    case { Key: ConsoleKey.Y } when _isGameCancelling:
+                        _sceneTerminator();
+                        Console.WriteLine();
                         break;
-                    case ConsoleKey.DownArrow:
-                        _controller.Direct(Direction.Down);
+
+                    case { Key: not ConsoleKey.Y } when _isGameCancelling:
+                        AvoidGameCancellation();
                         break;
-                    case ConsoleKey.LeftArrow:
-                        _controller.Direct(Direction.Left);
+
+                    case { Key: ConsoleKey.Enter or ConsoleKey.Spacebar }
+                            when _stopwatch.ElapsedMilliseconds > 500:
+                        _pauseToggle();
+                        _stopwatch.Restart();
                         break;
-                    case ConsoleKey.RightArrow:
-                        _controller.Direct(Direction.Right);
+
+                    case { Key: ConsoleKey.Escape }:
+                    case { Modifiers: ConsoleModifiers.Control, Key: ConsoleKey.C }:
+                        AskConfirmationOfGameCancellation();
                         break;
-                    case ConsoleKey.Enter:
-                        if (_stopwatch.ElapsedMilliseconds > 500)
-                        {
-                            _pauseToggle();
-                            _stopwatch.Restart();
-                        }
-                    break;
+
+                    default:
+                        OnKeyUnhandled(new(ki));
+                        break;
                 }
             }
 
             _isTaskRunnig = false;
+            Console.TreatControlCAsInput = false;
             cancellationToken.ThrowIfCancellationRequested();
+        }
+
+        private void AskConfirmationOfGameCancellation()
+        {
+            lock (Console.Out)
+            {
+                _pauseSetter(true);
+
+                Console.Clear();
+                Console.CursorVisible = true;
+                Console.Write("Are you sure you want to cancel the game? [y/N]: ");
+
+                _isGameCancelling = true;
+            }
+        }
+
+        private void AvoidGameCancellation()
+        {
+            Thread.Sleep(1000);
+            Console.Clear();
+
+            _isGameCancelling = false;
+            _pauseSetter(false);
+        }
+
+        protected virtual void OnKeyUnhandled(KeyEventArgs e)
+        {
+            KeyUnhandled?.Invoke(this, e);
         }
     }
 }

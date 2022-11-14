@@ -1,5 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using ConsoleSnakeGame.Core.Entities;
+using ConsoleSnakeGame.Core.Players;
 using ConsoleSnakeGame.Core.Rendering;
 using ConsoleSnakeGame.Core.Scenes;
 using Utilities.Numerics;
@@ -7,7 +8,7 @@ using Timer = System.Timers.Timer;
 
 namespace ConsoleSnakeGame.Core
 {
-    internal record Game(Settings Settings)
+    internal class Game
     {
         public enum Status { Win, Loss }
 
@@ -15,10 +16,36 @@ namespace ConsoleSnakeGame.Core
 
         private readonly Timer _timer = new(1000) { AutoReset = true };
 
-        private Action? _sceneTerminator;
+        private Grassland? _scene;
         private Task<Result>? _task;
 
-        public TimeSpan Time { get; private set; } = new();
+        public Game(Settings settings)
+        {
+            Settings = settings;
+
+            _timer.Elapsed += (_, _)
+                => Time += TimeSpan.FromMilliseconds(_timer.Interval);
+        }
+
+        public Settings Settings { get; init; }
+        public TimeSpan Time { get; private set; }
+
+        public bool IsPaused
+        {
+            get => _scene is not null ? _scene.IsPaused : throw NotStartedException;
+            set
+            {
+                if (_scene is null) throw NotStartedException;
+
+                _scene.IsPaused = value;
+                _timer.Enabled = !value;
+
+                UpdateTitle();
+            }
+        }
+
+        private static Exception NotStartedException =>
+            new InvalidOperationException("The game is not started.");
 
         public void Start()
         {
@@ -28,46 +55,31 @@ namespace ConsoleSnakeGame.Core
             }
 
             _timer.Start();
-            _timer.Elapsed += (_, _) => Time += TimeSpan.FromMilliseconds(_timer.Interval);
 
             var grid = new Grid(Settings.GridWidth, Settings.GridHeight);
             var position = new IntVector2(grid.Width / 2, grid.Height / 2);
             var snake = new Snake(position, Settings.InitialSnakeGrowth, Settings.FinalSnakeGrowth);
 
-            var scene = new Grassland(new(Settings.TickRate, grid, snake), out var snakeController);
-            _sceneTerminator = scene.Terminate;
-
-            InitiateRendering(scene, TogglePause);
+            _scene = new Grassland(new(Settings.TickRate, grid, snake), out var snakeController);
+            InitiateRendering(_scene);
             UpdateTitle();
 
-            var input = new UserInput(snakeController, TogglePause);
+            var input = new UserInput(() => IsPaused = !IsPaused, v => IsPaused = v, _scene.Terminate);
+            var player = new UserPlayer(snakeController, input);
             var cts = new CancellationTokenSource();
 
             var inputTask = input.HandleAsync(cts.Token);
-            _task = ProcessAsync(scene);
+            _task = ProcessAsync(_scene);
 
             _task.ContinueWith(_ => cts.Cancel());
             inputTask.ContinueWith(_ => cts.Dispose());
-
-            void TogglePause()
-            {
-                scene.IsPaused = !scene.IsPaused;
-                UpdateTitle();
-            }
-
-            void UpdateTitle()
-            {
-                Console.Title = "ConsoleSnakeGame"
-                    + (scene.IsPaused ? " | Paused (press enter to continue)" : string.Empty);
-            }
         }
 
         public TaskAwaiter<Result> GetAwaiter()
         {
             if (_task is null)
             {
-                var exception = new InvalidOperationException("The game is not started.");
-                return Task.FromException<Result>(exception).GetAwaiter();
+                return Task.FromException<Result>(NotStartedException).GetAwaiter();
             }
 
             return _task.GetAwaiter();
@@ -75,14 +87,17 @@ namespace ConsoleSnakeGame.Core
 
         public void Stop()
         {
-            _sceneTerminator?.Invoke();
+            _scene?.Terminate();
+            _scene = null;
 
             _timer.Stop();
             Time = default;
         }
 
-        private void InitiateRendering(Grassland scene, Action pauseToggle)
+        private void InitiateRendering(Grassland scene)
         {
+            Console.Clear();
+
             List<RenderingRule<ConsoleColor>> colorRules = new(Settings.SnakeColorRules)
             { RenderingRules.FoodColorRule, RenderingRules.ObstacleColorRule };
 
@@ -97,9 +112,10 @@ namespace ConsoleSnakeGame.Core
             var growthInfo = new InfoPanel.NamedItem("Growth") { Value = GetGrowthStr() };
             scene.Snake.AteFood += (_, _) => growthInfo.Value = GetGrowthStr();
 
-            var renderer = new TextRenderer(characterRules, colorRules) { InfoPanel = new(timeInfo, growthInfo) };
+            var renderer = new TextRenderer(characterRules, colorRules)
+            { InfoPanel = new(timeInfo, growthInfo) };
 
-            renderer.ErrorOccurred += (_, _) => pauseToggle();
+            renderer.ErrorOccurred += (_, _) => IsPaused = true;
             renderer.SetTarget(scene);
 
             string GetGrowthStr() => Settings.FinalSnakeGrowth is not null
@@ -128,6 +144,12 @@ namespace ConsoleSnakeGame.Core
             var score = scene.Snake.Growth - Settings.InitialSnakeGrowth;
 
             return new(status, score);
+        }
+
+        private void UpdateTitle()
+        {
+            Console.Title = "ConsoleSnakeGame"
+                + (IsPaused ? " | Paused (press enter to continue)" : string.Empty);
         }
     }
 }
