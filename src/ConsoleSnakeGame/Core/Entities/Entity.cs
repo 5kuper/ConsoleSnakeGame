@@ -70,6 +70,12 @@ namespace ConsoleSnakeGame.Core.Entities
 
             public void Destroy() => OnDestroying(EventArgs.Empty);
 
+            public override string ToString()
+            {
+                var tags = Tags.Count > 0 ? $" ({string.Join(", ", Tags)})" : string.Empty;
+                return Kind.ToString() + tags;
+            }
+
             protected virtual void OnDestroying(EventArgs e)
             {
                 Destroying?.Invoke(this, e);

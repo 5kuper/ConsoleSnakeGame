@@ -101,8 +101,11 @@ namespace ConsoleSnakeGame.Core.Rendering
 
         private void WriteUnit(IUnit value)
         {
-            var characterRule = CharacterRules.First(r => r.IsSuitableFor(value));
-            var colorRule = ColorRules.First(r => r.IsSuitableFor(value));
+            var characterRule = CharacterRules.FirstOrDefault(r => r.IsSuitableFor(value))
+                ?? throw new InvalidOperationException("There is no character rule for " + value);
+
+            var colorRule = ColorRules.FirstOrDefault(r => r.IsSuitableFor(value))
+                ?? throw new InvalidOperationException("There is no color rule for " + value);
 
             _canvas.Write(characterRule.Value, new(colorRule.Value));
         }

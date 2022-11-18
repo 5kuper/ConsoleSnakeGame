@@ -11,6 +11,7 @@ namespace ConsoleSnakeGame.Core
         public IUnit? this[IntVector2 position] { get; }
 
         public IntVector2 GetNextPosition(IntVector2 direction, IntVector2 point);
+        public IEnumerable<IntVector2> GetNearPositions(IntVector2 point);
     }
 
     internal class Grid : IReadOnlyGrid
@@ -67,6 +68,12 @@ namespace ConsoleSnakeGame.Core
             else if (position.Y == Height) position.Y -= Height;
 
             return position;
+        }
+
+        public IEnumerable<IntVector2> GetNearPositions(IntVector2 point)
+        {
+            var dirs = new[] { IntVector2.Up, IntVector2.Down, IntVector2.Left, IntVector2.Right };
+            return dirs.Select(d => GetNextPosition(d, point)).ToList();
         }
 
         private static void CheckDirection(IntVector2 direction)

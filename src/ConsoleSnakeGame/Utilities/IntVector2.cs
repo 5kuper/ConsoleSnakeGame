@@ -40,6 +40,11 @@ internal record struct IntVector2(int X, int Y)
         return (a.X * b.X) + (a.Y * b.Y);
     }
 
+    public Vector2 GetDirectionTo(IntVector2 value)
+    {
+        return Vector2.Normalize(value - this);
+    }
+
     public override int GetHashCode() => HashCode.Combine(X, Y);
 
     public static IntVector2 operator -(IntVector2 value) => Zero - value;
