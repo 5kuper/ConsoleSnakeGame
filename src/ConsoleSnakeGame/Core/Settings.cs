@@ -2,9 +2,9 @@
 
 namespace ConsoleSnakeGame.Core
 {
-    public enum SnakeColor { Green, Cyan, Yellow }
+    internal enum SnakeColor { Green, Cyan, Yellow }
 
-    internal struct Settings
+    internal struct Settings : IGame.ISettings
     {
         private SnakeColor? _snakeColor = null;
 

@@ -4,22 +4,19 @@ using ConsoleSnakeGame.Core.Players;
 using ConsoleSnakeGame.Core.Rendering;
 using ConsoleSnakeGame.Core.Scenes;
 using Utilities.Numerics;
+using Utilities.Terminal;
 using Timer = System.Timers.Timer;
 
 namespace ConsoleSnakeGame.Core
 {
-    internal class Game
+    internal class SnakeGame<TPlayer> : IGame where TPlayer : Player, new()
     {
-        public enum Status { Win, Loss }
-
-        public record Result(Status Status, int Score);
-
         private readonly Timer _timer = new(1000) { AutoReset = true };
 
         private Grassland? _scene;
-        private Task<Result>? _task;
+        private Task<IGame.Result>? _task;
 
-        public Game(Settings settings)
+        public SnakeGame(Settings settings)
         {
             Settings = settings;
 
@@ -29,6 +26,8 @@ namespace ConsoleSnakeGame.Core
 
         public Settings Settings { get; init; }
         public TimeSpan Time { get; private set; }
+
+        IGame.ISettings IGame.Settings => Settings;
 
         public bool IsPaused
         {
@@ -64,8 +63,9 @@ namespace ConsoleSnakeGame.Core
             InitiateRendering(_scene);
             UpdateTitle();
 
-            var input = new UserInput(() => IsPaused = !IsPaused, v => IsPaused = v, _scene.Terminate);
-            var player = new UserPlayer(snakeController, input);
+            var input = GetInputHandler();
+            var player = new TPlayer();
+            player.Activate(new(_scene, input), snakeController);
             var cts = new CancellationTokenSource();
 
             var inputTask = input.HandleAsync(cts.Token);
@@ -75,11 +75,11 @@ namespace ConsoleSnakeGame.Core
             inputTask.ContinueWith(_ => cts.Dispose());
         }
 
-        public TaskAwaiter<Result> GetAwaiter()
+        public TaskAwaiter<IGame.Result> GetAwaiter()
         {
             if (_task is null)
             {
-                return Task.FromException<Result>(NotStartedException).GetAwaiter();
+                return Task.FromException<IGame.Result>(NotStartedException).GetAwaiter();
             }
 
             return _task.GetAwaiter();
@@ -123,7 +123,7 @@ namespace ConsoleSnakeGame.Core
                 : scene.Snake.Growth.ToString();
         }
 
-        private async Task<Result> ProcessAsync(Grassland scene)
+        private async Task<IGame.Result> ProcessAsync(Grassland scene)
         {
             Grassland.Conclusion conclusion;
 
@@ -140,7 +140,9 @@ namespace ConsoleSnakeGame.Core
                 await scene.DisposeAsync();
             }
 
-            var status = conclusion is Grassland.Conclusion.SnakeSatisfied ? Status.Win : Status.Loss;
+            var status = conclusion is Grassland.Conclusion.SnakeSatisfied ?
+                            IGame.Status.Win : IGame.Status.Loss;
+
             var score = scene.Snake.Growth - Settings.InitialSnakeGrowth;
 
             return new(status, score);
@@ -150,6 +152,18 @@ namespace ConsoleSnakeGame.Core
         {
             Console.Title = "ConsoleSnakeGame"
                 + (IsPaused ? " | Paused (press enter to continue)" : string.Empty);
+        }
+
+        private ConsoleInput GetInputHandler()
+        {
+            void SetPause(bool value) => IsPaused = value;
+
+            void TogglePause() => IsPaused = !IsPaused;
+
+            return new ConsoleInput(SetPause, TogglePause, _scene!.Terminate)
+            {
+                ProgramName = "snake game"
+            };
         }
     }
 }

@@ -1,7 +1,15 @@
 ﻿using ConsoleSnakeGame.Core;
+using ConsoleSnakeGame.Core.Players;
 
 var settings = new Settings();
-var game = new Game(settings);
+
+Console.Write("Let a bot play? [y/N]: ");
+
+IGame game = Console.ReadKey().Key switch
+{
+    ConsoleKey.Y => new SnakeGame<BotPlayer>(settings),
+    _ => new SnakeGame<UserPlayer>(settings)
+};
 
 game.Start();
 
