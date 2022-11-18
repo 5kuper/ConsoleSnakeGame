@@ -2,13 +2,13 @@
 
 namespace ConsoleSnakeGame.Core.Scenes
 {
-    internal interface IRenderable
+    internal interface IScene
     {
         public event EventHandler? Updated;
         public IReadOnlyGrid Grid { get; }
     }
 
-    internal abstract class Scene<TConclusion> : IRenderable, IDisposable, IAsyncDisposable
+    internal abstract class Scene<TConclusion> : IScene, IDisposable, IAsyncDisposable
         where TConclusion : struct
     {
         private readonly CancellationTokenSource _cts = new();

@@ -1,11 +1,12 @@
-﻿namespace ConsoleSnakeGame.Core.Players
+﻿using Utilities.Terminal;
+
+namespace ConsoleSnakeGame.Core.Players
 {
     internal class UserPlayer : Player
     {
-        public UserPlayer(Controller controller, UserInput input)
-            : base(controller)
+        protected override void OnActivated(Environment env)
         {
-            input.KeyUnhandled += Input_KeyUnhandled;
+            env.Input.KeyUnhandled += Input_KeyUnhandled;
         }
 
         private void Input_KeyUnhandled(object? sender, KeyEventArgs e)

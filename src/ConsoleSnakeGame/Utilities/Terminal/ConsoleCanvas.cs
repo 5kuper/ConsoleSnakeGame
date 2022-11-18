@@ -1,4 +1,4 @@
-﻿namespace Utilities.Text;
+﻿namespace Utilities.Terminal;
 
 internal record struct ConsoleColors(ConsoleColor? Foreground = null, ConsoleColor? Background = null)
 {

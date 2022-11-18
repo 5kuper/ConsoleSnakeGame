@@ -1,6 +1,6 @@
 ﻿using ConsoleSnakeGame.Core.Entities;
 using ConsoleSnakeGame.Core.Scenes;
-using Utilities.Text;
+using Utilities.Terminal;
 
 namespace ConsoleSnakeGame.Core.Rendering
 {
@@ -26,10 +26,10 @@ namespace ConsoleSnakeGame.Core.Rendering
         private const char VoidElement = '·';
         private const char HorizontalElement = '║';
 
-        private IRenderable _target = null!;
+        private IScene _target = null!;
         private ConsoleCanvas _canvas = null!;
 
-        public void SetTarget(IRenderable value)
+        public void SetTarget(IScene value)
         {
             void Target_Updated(object? sender, EventArgs e) => Render();
 
