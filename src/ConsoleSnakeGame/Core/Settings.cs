@@ -4,37 +4,40 @@ namespace ConsoleSnakeGame.Core
 {
     internal enum SnakeColor { Green, Cyan, Yellow }
 
-    internal struct Settings : IGame.ISettings
+    internal partial class SnakeGame
     {
-        private SnakeColor? _snakeColor = null;
-
-        public Settings() => FinalSnakeGrowth = GridWidth * GridHeight;
-
-        public int TickRate { get; init; } = 5;
-
-        public int GridWidth { get; init; } = 20;
-        public int GridHeight { get; init; } = 15;
-
-        public int InitialSnakeGrowth { get; init; } = 3;
-
-        public int? FinalSnakeGrowth { get; init; }
-
-        public SnakeColor SnakeColor
+        internal struct Settings
         {
-            get
+            private SnakeColor? _snakeColor = null;
+
+            public Settings() => FinalSnakeGrowth = GridWidth * GridHeight;
+
+            public int TickRate { get; init; } = 5;
+
+            public int GridWidth { get; init; } = 20;
+            public int GridHeight { get; init; } = 15;
+
+            public int InitialSnakeGrowth { get; init; } = 3;
+
+            public int? FinalSnakeGrowth { get; init; }
+
+            public SnakeColor SnakeColor
             {
-                _snakeColor ??= Enum.GetValues<SnakeColor>().OrderBy(_ => Guid.NewGuid()).First();
-                return _snakeColor.Value;
+                get
+                {
+                    _snakeColor ??= Enum.GetValues<SnakeColor>().OrderBy(_ => Guid.NewGuid()).First();
+                    return _snakeColor.Value;
+                }
+                init => _snakeColor = value;
             }
-            init => _snakeColor = value;
-        }
 
-        public RenderingRule<ConsoleColor>[] SnakeColorRules => SnakeColor switch
-        {
-            SnakeColor.Green => RenderingRules.GreenSnakeColorRules,
-            SnakeColor.Cyan => RenderingRules.CyanSnakeColorRules,
-            SnakeColor.Yellow => RenderingRules.YellowSnakeColorRules,
-            _ => throw new InvalidOperationException($"Value {(int)SnakeColor} of {typeof(SnakeColor)} is invalid.")
-        };
+            public RenderingRule<ConsoleColor>[] SnakeColorRules => SnakeColor switch
+            {
+                SnakeColor.Green => RenderingRules.GreenSnakeColorRules,
+                SnakeColor.Cyan => RenderingRules.CyanSnakeColorRules,
+                SnakeColor.Yellow => RenderingRules.YellowSnakeColorRules,
+                _ => throw new InvalidOperationException($"Value {(int)SnakeColor} of {typeof(SnakeColor)} is invalid.")
+            };
+        }
     }
 }

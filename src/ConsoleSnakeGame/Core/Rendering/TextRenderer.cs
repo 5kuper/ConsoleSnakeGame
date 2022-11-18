@@ -26,10 +26,10 @@ namespace ConsoleSnakeGame.Core.Rendering
         private const char VoidElement = '·';
         private const char HorizontalElement = '║';
 
-        private IScene _target = null!;
+        private IRenderable _target = null!;
         private ConsoleCanvas _canvas = null!;
 
-        public void SetTarget(IScene value)
+        public void SetTarget(IRenderable value)
         {
             void Target_Updated(object? sender, EventArgs e) => Render();
 

@@ -8,7 +8,7 @@ namespace ConsoleSnakeGame.Core.Players
 {
     internal abstract class Player
     {
-        public record struct Environment(IScene Scene, ConsoleInput Input);
+        public record struct Environment(Scene Scene, ConsoleInput Input);
 
         protected Controller CharacterController { get; private set; } = null!;
 
