@@ -7,21 +7,18 @@ using Utilities.Terminal;
 
 namespace ConsoleSnakeGame.Core
 {
-    internal abstract partial class SnakeGame : Game { }
+    internal abstract partial class SnakeGame : Game
+    {
+        public Settings Sets { get; init; }
+    }
 
     internal class SnakeGame<TPlayer> : SnakeGame where TPlayer : Player, new()
     {
-        private readonly Settings _settings;
-
-        public SnakeGame(Settings settings) => _settings = settings;
+        public SnakeGame(Settings settings) => Sets = settings;
 
         protected override void Init(out Scene scene, out Task<Result> process)
         {
-            var grid = new Grid(_settings.GridWidth, _settings.GridHeight);
-            var position = new IntVector2(grid.Width / 2, grid.Height / 2);
-            var snake = new Snake(position, _settings.InitialSnakeGrowth, _settings.FinalSnakeGrowth);
-
-            var grassland = new Grassland(new(_settings.TickRate, grid, snake), out var snakeController);
+            var grassland = new Grassland(GetGrasslandCtorArgs(), out var snakeController);
             InitiateRendering(grassland);
 
             scene = grassland;
@@ -44,11 +41,28 @@ namespace ConsoleSnakeGame.Core
             inputTask.ContinueWith(_ => cts.Dispose());
         }
 
+        private Grassland.CtorArgs GetGrasslandCtorArgs()
+        {
+            var grid = new Grid(Sets.GridWidth, Sets.GridHeight);
+            var obstaclePositions = GetObstaclePositions();
+
+            if (obstaclePositions is not null)
+            {
+                var obstacles = new Entity(UnitKind.Obstacle, obstaclePositions.ToArray());
+                grid.AddEntity(obstacles);
+            }
+
+            var snakePosition = new IntVector2(grid.Width / 2, grid.Height / 2);
+            var snake = new Snake(snakePosition, Sets.InitialSnakeGrowth, Sets.FinalSnakeGrowth);
+
+            return new(Sets.TickRate, grid, snake);
+        }
+
         private void InitiateRendering(Grassland scene)
         {
             Console.Clear();
 
-            List<RenderingRule<ConsoleColor>> colorRules = new(_settings.SnakeColorRules)
+            List<RenderingRule<ConsoleColor>> colorRules = new(GetSnakeColorRules())
                 { RenderingRules.FoodColorRule, RenderingRules.ObstacleColorRule };
 
             colorRules.Insert(0, RenderingRules.CrashColorRule);
@@ -68,8 +82,8 @@ namespace ConsoleSnakeGame.Core
             renderer.ErrorOccurred += (_, _) => IsPaused = true;
             renderer.SetTarget(scene);
 
-            string GetGrowthStr() => _settings.FinalSnakeGrowth is not null
-                ? scene.Snake.Growth.ToString() + $"/{_settings.FinalSnakeGrowth}"
+            string GetGrowthStr() => Sets.FinalSnakeGrowth is not null
+                ? scene.Snake.Growth.ToString() + $"/{Sets.FinalSnakeGrowth}"
                 : scene.Snake.Growth.ToString();
         }
 
@@ -93,7 +107,7 @@ namespace ConsoleSnakeGame.Core
             var status = conclusion is Grassland.Conclusion.SnakeSatisfied ?
                                             Status.Win : Status.Loss;
 
-            var score = scene.Snake.Growth - _settings.InitialSnakeGrowth;
+            var score = scene.Snake.Growth - Sets.InitialSnakeGrowth;
 
             return new(status, score);
         }

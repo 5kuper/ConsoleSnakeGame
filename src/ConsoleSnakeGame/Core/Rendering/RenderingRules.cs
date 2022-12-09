@@ -13,7 +13,7 @@ namespace ConsoleSnakeGame.Core.Rendering
         public static ColorRule CrashColorRule => new(Red, RequiredTags: CrashTag);
 
         public static CharacterRule ObstacleCharacterRule => new('#', Obstacle);
-        public static ColorRule ObstacleColorRule => new(Blue, Obstacle);
+        public static ColorRule ObstacleColorRule => new(DarkBlue, Obstacle);
 
         public static CharacterRule FoodCharacterRule => new('@', Food);
         public static ColorRule FoodColorRule => new(Magenta, Food);
