@@ -56,7 +56,8 @@ internal record struct IntVector2(int X, int Y)
 
     public static IntVector2 operator *(IntVector2 vec, int num) => new IntVector2(num) * vec;
     public static IntVector2 operator *(int num, IntVector2 vec) => new IntVector2(num) * vec;
-    public static IntVector2 operator /(IntVector2 vec, int num) => new IntVector2(num) / vec;
+
+    public static IntVector2 operator /(IntVector2 vec, int num) => vec / new IntVector2(num);
 
     public static implicit operator Vector2(IntVector2 value) => new(value.X, value.Y);
     public static explicit operator IntVector2(Vector2 value) => new((int)value.X, (int)value.Y);
