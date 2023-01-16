@@ -3,11 +3,11 @@ using static ConsoleSnakeGame.Core.Entities.UnitKind;
 using static ConsoleSnakeGame.Core.Entities.Snake;
 using static Utilities.Numerics.IntVector2;
 
-using ColorRule = ConsoleSnakeGame.Core.Rendering.RenderingRule<System.ConsoleColor>;
-using CharacterRule = ConsoleSnakeGame.Core.Rendering.RenderingRule<char>;
-
 namespace ConsoleSnakeGame.Core.Rendering
 {
+    using ColorRule = RenderingRule<ConsoleColor>;
+    using CharacterRule = RenderingRule<char>;
+
     internal static class RenderingRules
     {
         public static ColorRule CrashColorRule => new(Red, RequiredTags: CrashTag);

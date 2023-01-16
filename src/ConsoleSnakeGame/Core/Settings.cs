@@ -10,20 +10,45 @@ namespace ConsoleSnakeGame.Core
     {
         internal struct Settings
         {
-            private SnakeColor? _snakeColor = null;
+            public const int InitSnakeGrowth = 3,
+                MinGridWidth = 9, MinGridHeight = 9;
 
-            public Settings() => FinalSnakeGrowth = GridWidth * GridHeight;
+            // -1 is calculate automatically
+            // null is no final growth
+            private int? _finalSnakeGrowth = -1;
+
+            private SnakeColor? _snakeColor;
+            private IEnumerable<IntVector2>? _obstaclePositions;
+
+            public Settings()
+            {
+                _snakeColor = null;
+                _obstaclePositions = null;
+                ObstaclePlacement = null;
+            }
 
             public int TickRate { get; init; } = 5;
 
             public int GridWidth { get; init; } = 21;
             public int GridHeight { get; init; } = 15;
 
-            public int InitialSnakeGrowth { get; init; } = 3;
+            public ObstaclePlacement? ObstaclePlacement { get; init; }
 
-            public int? FinalSnakeGrowth { get; init; }
+            public int MaxFinalGrowth => GridWidth * GridHeight;
 
-            public ObstaclePlacement? ObstaclePlacement { get; init; } = null;
+            public IntVector2 SpawnPosition => GetSpawnPosition(GridWidth, GridHeight);
+
+            public int? FinalSnakeGrowth
+            {
+                get
+                {
+                    if (_finalSnakeGrowth is -1)
+                        _finalSnakeGrowth = MaxFinalGrowth - ObstaclePositions?.Count();
+
+                    return _finalSnakeGrowth;
+                }
+                init => _finalSnakeGrowth = value;
+            }
 
             public SnakeColor SnakeColor
             {
@@ -34,12 +59,45 @@ namespace ConsoleSnakeGame.Core
                 }
                 init => _snakeColor = value;
             }
-        }
 
-        protected IEnumerable<IntVector2>? GetObstaclePositions()
-        {
-            var gridLength = new IntVector2(Sets.GridWidth, Sets.GridHeight);
-            return Sets.ObstaclePlacement?.GetPositions(gridLength);
+            public IEnumerable<IntVector2>? ObstaclePositions
+            {
+                get
+                {
+                    if (_obstaclePositions is null)
+                    {
+                        var gridLength = new IntVector2(GridWidth, GridHeight);
+                        _obstaclePositions = ObstaclePlacement?.GetPositions(gridLength);
+                    }
+
+                    return _obstaclePositions;
+                }
+            }
+
+            public static IntVector2 GetSpawnPosition(int gridWidth, int gridHeight)
+            {
+                return new(gridWidth / 2, gridHeight / 2);
+            }
+
+            public void Validate()
+            {
+                if (GridWidth < MinGridWidth)
+                {
+                    throw new InvalidOperationException("Grid width cannot be less" +
+                        $"than the minimum value ({MinGridWidth}).");
+                }
+                if (GridHeight < MinGridHeight)
+                {
+                    throw new InvalidOperationException("Grid height cannot be less " +
+                        $"than the minimum value ({MinGridHeight}).");
+                }
+
+                if (FinalSnakeGrowth > MaxFinalGrowth)
+                {
+                    throw new InvalidOperationException("Final snake growth cannot be greater " +
+                        $"than the maximum value ({MaxFinalGrowth}).");
+                }
+            }
         }
 
         protected RenderingRule<ConsoleColor>[] GetSnakeColorRules()

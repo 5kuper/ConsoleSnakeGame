@@ -72,6 +72,8 @@ namespace ConsoleSnakeGame.Core.Scenes
         {
             var period = TimeSpan.FromSeconds(1.0 / _tickRate);
 
+            Notify();
+
             while (_conclusion is null)
             {
                 _cts.Token.ThrowIfCancellationRequested();
@@ -80,6 +82,13 @@ namespace ConsoleSnakeGame.Core.Scenes
                 _stopwatch.Restart();
 
                 Update();
+                Notify();
+            }
+
+            return _conclusion.Value;
+
+            void Notify()
+            {
                 OnUpdated(EventArgs.Empty);
 
                 var delay = period - _stopwatch.Elapsed;
@@ -87,8 +96,6 @@ namespace ConsoleSnakeGame.Core.Scenes
                 if (delay > TimeSpan.Zero)
                     Thread.Sleep(delay);
             }
-
-            return _conclusion.Value;
         }
     }
 }

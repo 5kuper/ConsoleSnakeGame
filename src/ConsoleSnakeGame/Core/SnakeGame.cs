@@ -18,6 +18,8 @@ namespace ConsoleSnakeGame.Core
 
         protected override void Init(out Scene scene, out Task<Result> process)
         {
+            Sets.Validate();
+
             var grassland = new Grassland(GetGrasslandCtorArgs(), out var snakeController);
             InitiateRendering(grassland);
 
@@ -44,7 +46,7 @@ namespace ConsoleSnakeGame.Core
         private Grassland.CtorArgs GetGrasslandCtorArgs()
         {
             var grid = new Grid(Sets.GridWidth, Sets.GridHeight);
-            var obstaclePositions = GetObstaclePositions();
+            var obstaclePositions = Sets.ObstaclePositions;
 
             if (obstaclePositions is not null)
             {
@@ -52,9 +54,7 @@ namespace ConsoleSnakeGame.Core
                 grid.AddEntity(obstacles);
             }
 
-            var snakePosition = new IntVector2(grid.Width / 2, grid.Height / 2);
-            var snake = new Snake(snakePosition, Sets.InitialSnakeGrowth, Sets.FinalSnakeGrowth);
-
+            var snake = new Snake(Sets.SpawnPosition, Settings.InitSnakeGrowth, Sets.FinalSnakeGrowth);
             return new(Sets.TickRate, grid, snake);
         }
 
@@ -107,7 +107,7 @@ namespace ConsoleSnakeGame.Core
             var status = conclusion is Grassland.Conclusion.SnakeSatisfied ?
                                             Status.Win : Status.Loss;
 
-            var score = scene.Snake.Growth - Sets.InitialSnakeGrowth;
+            var score = scene.Snake.Growth - Settings.InitSnakeGrowth;
 
             return new(status, score);
         }
