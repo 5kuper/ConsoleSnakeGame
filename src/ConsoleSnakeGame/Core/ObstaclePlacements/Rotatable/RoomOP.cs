@@ -24,8 +24,7 @@ namespace ConsoleSnakeGame.Core.ObstaclePlacements.Rotatable
 
     internal class RoomOP : ObstaclePlacement
     {
-        private readonly bool _rotate;
-        private readonly bool _mirror;
+        private readonly bool _rotate, _mirror;
 
         public RoomOP(bool rotate, bool mirror)
         {
