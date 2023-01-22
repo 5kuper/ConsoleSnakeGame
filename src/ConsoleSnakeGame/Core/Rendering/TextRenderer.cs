@@ -95,6 +95,7 @@ namespace ConsoleSnakeGame.Core.Rendering
             catch (ConsoleBufferException)
             {
                 Console.Clear();
+                _canvas.Clear(false);
                 OnErrorOccurred(EventArgs.Empty);
             }
         }

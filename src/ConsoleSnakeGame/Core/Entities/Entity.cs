@@ -8,16 +8,17 @@ namespace ConsoleSnakeGame.Core.Entities
     internal class Entity : IEnumerable<IUnit>
     {
         public Entity(UnitKind kind, params IntVector2[] positions)
+            : this((positions?.Length) ?? 0)
         {
             ArgumentNullException.ThrowIfNull(positions, nameof(positions));
             Array.ForEach(positions, p => CreateUnit(kind, p));
         }
 
-        protected Entity() { }
+        protected Entity(int capacity) => Units = new(capacity);
 
         public event EventHandler? Cleared;
 
-        protected List<Unit> Units { get; } = new();
+        protected List<Unit> Units { get; }
 
         public void Clear()
         {
@@ -25,14 +26,26 @@ namespace ConsoleSnakeGame.Core.Entities
             OnCleared(EventArgs.Empty);
         }
 
+        protected Unit CreateUnit(UnitKind kind, IntVector2 position)
+        {
+            var unit = new Unit(kind, position, Unit_Destroying);
+            Units.Add(unit);
+            return unit;
+        }
+
         protected Unit CreateUnit(UnitKind kind, IntVector2 position, params string[] tags)
         {
             ArgumentNullException.ThrowIfNull(tags, nameof(tags));
-
-            var unit = new Unit(kind, position, Unit_Destroying);
+            var unit = CreateUnit(kind, position);
             unit.Tags.AddRange(tags);
-            Units.Add(unit);
+            return unit;
+        }
 
+        protected Unit CreateUnit(UnitKind kind, IntVector2 position, string tag)
+        {
+            ArgumentNullException.ThrowIfNull(tag, nameof(tag));
+            var unit = CreateUnit(kind, position);
+            unit.Tags.Add(tag);
             return unit;
         }
 

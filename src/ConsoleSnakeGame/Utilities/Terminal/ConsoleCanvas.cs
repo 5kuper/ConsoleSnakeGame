@@ -18,7 +18,10 @@ internal class ConsoleCanvas
 {
     private record struct ColoredCharacter(char? Value, ConsoleColors Colors = default);
 
-    private ColoredCharacter[,] _buffer;
+    private static readonly ColoredCharacter[,] EmptyData = new ColoredCharacter[0, 0];
+    private readonly Dictionary<(int Col, int Row), bool> _doNotRewrite = new();
+
+    private ColoredCharacter[,] _buffer, _oldData = EmptyData;
     private (int Col, int Row) _pos;
 
     public ConsoleCanvas(int initialWidth = 0, int initialHeight = 0,
@@ -48,6 +51,8 @@ internal class ConsoleCanvas
             {
                 for (int col = 0; col < BufferWidth; col++)
                 {
+                    if (_doNotRewrite.GetValueOrDefault((col, row))) continue;
+
                     try
                     {
                         Console.SetCursorPosition(col + Offset.Cols, row + Offset.Rows);
@@ -68,15 +73,20 @@ internal class ConsoleCanvas
         }
     }
 
-    public void Clear()
+    public void Clear(bool saveOldData = true)
     {
+        _oldData = saveOldData ? _buffer : EmptyData;
         _buffer = new ColoredCharacter[BufferWidth, BufferHeight];
         _pos = default;
     }
 
     public void Write(char character, ConsoleColors colors = default)
     {
-        _buffer[_pos.Col, _pos.Row] = new(character, colors);
+        var chr = new ColoredCharacter(character, colors);
+        _buffer[_pos.Col, _pos.Row] = chr;
+
+        var isIndexValid = _pos.Col < _oldData.GetLength(0) && _pos.Row < _oldData.GetLength(1);
+        _doNotRewrite[(_pos.Col, _pos.Row)] = isIndexValid && _oldData[_pos.Col, _pos.Row] == chr;
 
         if (++_pos.Col == BufferWidth)
             ExpandBuffer(BufferWidth + 1, BufferHeight);

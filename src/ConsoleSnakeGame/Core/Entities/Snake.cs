@@ -28,6 +28,7 @@ namespace ConsoleSnakeGame.Core.Entities
         public int Growth => Units.Count;
 
         public Snake(IntVector2 position, int initialGrowth, int? finalGrowth = null)
+            : base(finalGrowth ?? initialGrowth * 5)
         {
             if (initialGrowth < 2)
             {
@@ -68,7 +69,7 @@ namespace ConsoleSnakeGame.Core.Entities
         {
             var tail = Units.Last();
             tail.Tags.RemoveAll(t => TailTags.Any(p => p.Value == t));
-            
+
             tail.Position = _head.Position;
             ChangeUnitIndex(tail, BodyIndex);
             _head.Position = position;
