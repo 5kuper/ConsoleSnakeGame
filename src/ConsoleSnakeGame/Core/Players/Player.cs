@@ -30,7 +30,7 @@ namespace ConsoleSnakeGame.Core.Players
         {
             public enum Direction { Up, Down, Left, Right }
 
-            public record DirectedEventArgs(IntVector2 Direction);
+            public record DirectedEventArgs(IntVector2 Direction, bool IsPauseIgnoring);
 
             public static IReadOnlyDictionary<IntVector2, Direction?> Directions
                 = new Dictionary<IntVector2, Direction?>()
@@ -49,7 +49,7 @@ namespace ConsoleSnakeGame.Core.Players
 
             public IUnit Subject { get; }
 
-            public void Direct(Direction dir)
+            public void Direct(Direction dir, bool ignorePause = false)
             {
                 var vector = Directions.FirstOrDefault(d => d.Value == dir).Key;
 
@@ -58,7 +58,7 @@ namespace ConsoleSnakeGame.Core.Players
                     throw new InvalidEnumArgumentException(nameof(dir), (int)dir, dir.GetType());
                 }
 
-                OnDirected(new(vector));
+                OnDirected(new(vector, ignorePause));
             }
 
             protected virtual void OnDirected(DirectedEventArgs e)

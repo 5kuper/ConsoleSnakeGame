@@ -31,7 +31,7 @@ namespace ConsoleSnakeGame.Core.Players
             var enumDir = Controller.Directions.GetValueOrDefault(vectorDir)
                           ?? throw new InvalidOperationException("Bot couldn't compute a direction correctly.");
 
-            CharacterController.Direct(enumDir);
+            CharacterController.Direct(enumDir, true);
         }
 
         private bool TryBuildRoute(out Stack<IntVector2> steps)

@@ -8,7 +8,7 @@ namespace ConsoleSnakeGame.Core
 
     internal partial class SnakeGame
     {
-        internal struct Settings
+        internal class Settings
         {
             public const int InitSnakeGrowth = 3,
                 MinGridWidth = 9, MinGridHeight = 9;
@@ -83,7 +83,7 @@ namespace ConsoleSnakeGame.Core
             {
                 if (GridWidth < MinGridWidth)
                 {
-                    throw new InvalidOperationException("Grid width cannot be less" +
+                    throw new InvalidOperationException("Grid width cannot be less " +
                         $"than the minimum value ({MinGridWidth}).");
                 }
                 if (GridHeight < MinGridHeight)

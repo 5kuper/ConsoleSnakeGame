@@ -1,4 +1,5 @@
-﻿using ConsoleSnakeGame.Core.Entities;
+﻿
+using ConsoleSnakeGame.Core.Entities;
 using ConsoleSnakeGame.Core.Players;
 using Utilities.Numerics;
 
@@ -24,7 +25,7 @@ namespace ConsoleSnakeGame.Core.Scenes
 
             snakeController = new(Snake.Head, (_, e) =>
             {
-                if (IsPaused) return;
+                if (IsPaused && !e.IsPauseIgnoring) return;
                 _controllerDirection = e.Direction;
             });
 

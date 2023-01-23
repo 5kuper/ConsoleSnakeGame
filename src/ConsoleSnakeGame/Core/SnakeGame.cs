@@ -2,7 +2,6 @@
 using ConsoleSnakeGame.Core.Players;
 using ConsoleSnakeGame.Core.Rendering;
 using ConsoleSnakeGame.Core.Scenes;
-using Utilities.Numerics;
 using Utilities.Terminal;
 
 namespace ConsoleSnakeGame.Core
@@ -10,11 +9,14 @@ namespace ConsoleSnakeGame.Core
     internal abstract partial class SnakeGame : Game
     {
         public Settings Sets { get; init; }
+
+        protected SnakeGame(Settings settings) => Sets = settings ?? throw
+            new ArgumentNullException(nameof(settings));
     }
 
     internal class SnakeGame<TPlayer> : SnakeGame where TPlayer : Player, new()
     {
-        public SnakeGame(Settings settings) => Sets = settings;
+        public SnakeGame(Settings settings) : base(settings) { }
 
         protected override void Init(out Scene scene, out Task<Result> process)
         {
