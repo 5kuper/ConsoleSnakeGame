@@ -1,6 +1,6 @@
 ﻿using static System.ConsoleColor;
-using static ConsoleSnakeGame.Core.Entities.UnitKind;
-using static ConsoleSnakeGame.Core.Entities.Snake;
+using static ConsoleSnakeGame.Core.Gridwork.Entities.UnitKind;
+using static ConsoleSnakeGame.Core.Gridwork.Entities.Snake;
 using static Utilities.Numerics.IntVector2;
 
 namespace ConsoleSnakeGame.Core.Rendering

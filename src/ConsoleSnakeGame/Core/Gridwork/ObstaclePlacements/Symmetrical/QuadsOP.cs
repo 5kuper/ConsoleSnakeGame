@@ -1,6 +1,7 @@
-﻿using Utilities.Numerics;
+﻿using ConsoleSnakeGame.Core.Gridwork.ObstaclePlacements;
+using Utilities.Numerics;
 
-namespace ConsoleSnakeGame.Core.ObstaclePlacements.Symmetrical
+namespace ConsoleSnakeGame.Core.Gridwork.ObstaclePlacements.Symmetrical
 {
     /*
         ╔═══════════════════════════════════════════╗
@@ -27,7 +28,7 @@ namespace ConsoleSnakeGame.Core.ObstaclePlacements.Symmetrical
         protected override IEnumerable<IntVector2> CompoutePositions(GridInfo gi)
         {
             var start = gi.Mid / 3;
-            var end = start + (gi.Mid / 2);
+            var end = start + gi.Mid / 2;
 
             for (int x1 = start.X; x1 < end.X; x1++)
             {

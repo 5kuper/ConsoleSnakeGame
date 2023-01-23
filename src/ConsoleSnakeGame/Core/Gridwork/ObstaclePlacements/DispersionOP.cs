@@ -1,6 +1,6 @@
 ﻿using Utilities.Numerics;
 
-namespace ConsoleSnakeGame.Core.ObstaclePlacements
+namespace ConsoleSnakeGame.Core.Gridwork.ObstaclePlacements
 {
     internal class DispersionOP : ObstaclePlacement
     {

@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using ConsoleSnakeGame.Core.Gridwork;
 
 namespace ConsoleSnakeGame.Core.Scenes
 {

@@ -1,5 +1,5 @@
-﻿
-using ConsoleSnakeGame.Core.Entities;
+﻿using ConsoleSnakeGame.Core.Gridwork;
+using ConsoleSnakeGame.Core.Gridwork.Entities;
 using ConsoleSnakeGame.Core.Players;
 using Utilities.Numerics;
 

@@ -1,7 +1,7 @@
-﻿using ConsoleSnakeGame.Core.Entities;
+﻿using ConsoleSnakeGame.Core.Gridwork.Entities;
 using Utilities.Numerics;
 
-namespace ConsoleSnakeGame.Core
+namespace ConsoleSnakeGame.Core.Gridwork
 {
     internal interface IReadOnlyGrid
     {

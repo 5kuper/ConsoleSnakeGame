@@ -1,4 +1,4 @@
-﻿using ConsoleSnakeGame.Core.ObstaclePlacements;
+﻿using ConsoleSnakeGame.Core.Gridwork.ObstaclePlacements;
 using ConsoleSnakeGame.Core.Rendering;
 using Utilities.Numerics;
 

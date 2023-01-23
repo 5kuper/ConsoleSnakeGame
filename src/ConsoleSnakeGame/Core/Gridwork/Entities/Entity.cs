@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using Utilities.Numerics;
 
-namespace ConsoleSnakeGame.Core.Entities
+namespace ConsoleSnakeGame.Core.Gridwork.Entities
 {
     internal enum UnitKind { Snake, Food, Obstacle }
 

@@ -1,6 +1,7 @@
-﻿using Utilities.Numerics;
+﻿using ConsoleSnakeGame.Core.Gridwork.ObstaclePlacements;
+using Utilities.Numerics;
 
-namespace ConsoleSnakeGame.Core.ObstaclePlacements.Rotatable
+namespace ConsoleSnakeGame.Core.Gridwork.ObstaclePlacements.Rotatable
 {
     /*
         ╔═══════════════════════════════════════════╗

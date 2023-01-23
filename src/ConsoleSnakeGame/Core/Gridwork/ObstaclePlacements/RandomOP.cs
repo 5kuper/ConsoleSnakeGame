@@ -1,8 +1,8 @@
-﻿using ConsoleSnakeGame.Core.ObstaclePlacements.Rotatable;
-using ConsoleSnakeGame.Core.ObstaclePlacements.Symmetrical;
+﻿using ConsoleSnakeGame.Core.Gridwork.ObstaclePlacements.Rotatable;
+using ConsoleSnakeGame.Core.Gridwork.ObstaclePlacements.Symmetrical;
 using Utilities.Numerics;
 
-namespace ConsoleSnakeGame.Core.ObstaclePlacements
+namespace ConsoleSnakeGame.Core.Gridwork.ObstaclePlacements
 {
     using OPs = List<ObstaclePlacement>;
 

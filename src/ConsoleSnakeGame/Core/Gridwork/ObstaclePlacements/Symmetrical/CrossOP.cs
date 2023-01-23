@@ -1,6 +1,7 @@
-﻿using Utilities.Numerics;
+﻿using ConsoleSnakeGame.Core.Gridwork.ObstaclePlacements;
+using Utilities.Numerics;
 
-namespace ConsoleSnakeGame.Core.ObstaclePlacements.Symmetrical
+namespace ConsoleSnakeGame.Core.Gridwork.ObstaclePlacements.Symmetrical
 {
     /*
        ╔═══════════════════════════════════════════╗

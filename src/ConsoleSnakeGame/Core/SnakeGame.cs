@@ -1,4 +1,5 @@
-﻿using ConsoleSnakeGame.Core.Entities;
+﻿using ConsoleSnakeGame.Core.Gridwork.Entities;
+using ConsoleSnakeGame.Core.Gridwork;
 using ConsoleSnakeGame.Core.Players;
 using ConsoleSnakeGame.Core.Rendering;
 using ConsoleSnakeGame.Core.Scenes;
