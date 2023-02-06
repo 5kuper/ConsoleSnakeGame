@@ -19,7 +19,7 @@ namespace ConsoleSnakeGame.Core
 
         public bool IsPaused
         {
-            get => Scene is not null && Scene.IsPaused;
+            get => Scene?.IsPaused == true;
             set
             {
                 if (Scene is null) throw NotStartedException;
