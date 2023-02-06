@@ -39,13 +39,28 @@ namespace ConsoleSnakeGame.Core.Players
                 { IntVector2.Left, Direction.Left }, { IntVector2.Right, Direction.Right }
             };
 
-            public Controller(IUnit subject, EventHandler<DirectedEventArgs> directedHandler)
+            private readonly List<EventHandler> _subjectMovedHandlers = new();
+
+            public Controller(IUnit subject, out Action subjectMovedInvokator,
+                EventHandler<DirectedEventArgs> directedHandler)
             {
                 Subject = subject ?? throw new ArgumentNullException(nameof(subject));
                 Directed = directedHandler ?? throw new ArgumentNullException(nameof(directedHandler));
+
+                subjectMovedInvokator = () =>
+                {
+                    foreach (var handler in _subjectMovedHandlers)
+                        handler?.Invoke(this, EventArgs.Empty);
+                };
             }
 
             public event EventHandler<DirectedEventArgs> Directed;
+
+            public event EventHandler SubjectMoved
+            {
+                add => _subjectMovedHandlers.Add(value);
+                remove => _subjectMovedHandlers.Remove(value);
+            }
 
             public IUnit Subject { get; }
 

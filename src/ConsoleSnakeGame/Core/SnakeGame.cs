@@ -58,7 +58,7 @@ namespace ConsoleSnakeGame.Core
             }
 
             var snake = new Snake(Sets.SpawnPosition, Settings.InitSnakeGrowth, Sets.FinalSnakeGrowth);
-            return new(Sets.TickRate, grid, snake);
+            return new(Sets.TickRate, grid, snake, new((Sets.StartSpeed, Sets.LimitSpeed), Sets.GrowthForMaxSpeed));
         }
 
         private void InitiateRendering(Grassland scene)

@@ -9,7 +9,12 @@ namespace ConsoleSnakeGame.Core.Scenes
     {
         public enum Conclusion { SnakeSatisfied, SnakeCrashed }
 
-        public record CtorArgs(int TickRate, Grid Grid, Snake Snake);
+        public record struct CtorArgs(int TickRate, Grid Grid, Snake Snake, SnakeSpeed SpeedInfo);
+        public record struct SnakeSpeed(Range<Proportion> ValueRange, int GrowthForMaxValue);
+
+        private readonly SnakeMotor _snakeMotor;
+        private readonly Action _snakeMovedInvokator;
+        private readonly int _growthForMaxSpeed;
 
         private IntVector2 _controllerDirection = IntVector2.Up;
         private IntVector2 _lastUsedDirectoin;
@@ -17,19 +22,27 @@ namespace ConsoleSnakeGame.Core.Scenes
         public Grassland(CtorArgs args, out Player.Controller snakeController)
             : base(args.TickRate, args.Grid)
         {
-            ArgumentNullException.ThrowIfNull(args, nameof(args));
             Snake = args.Snake ?? throw new ArgumentException("Snake cannot be null.", nameof(args));
+            EditableGrid.AddEntity(Snake);
 
             Snake.AteFood += Snake_AteFood;
             Snake.Crashed += Snake_Crashed;
 
-            snakeController = new(Snake.Head, (_, e) =>
+            snakeController = new(Snake.Head, out _snakeMovedInvokator, (_, e) =>
             {
                 if (IsPaused && !e.IsPauseIgnoring) return;
                 _controllerDirection = e.Direction;
             });
 
-            EditableGrid.AddEntity(Snake);
+            _snakeMotor = new(Snake, Grid, args.SpeedInfo.ValueRange);
+            _growthForMaxSpeed = args.SpeedInfo.GrowthForMaxValue;
+
+            if (_growthForMaxSpeed < Snake.Growth)
+            {
+                throw new ArgumentException("Growth for max speed cannot be less than" +
+                    " the current snake growth.", nameof(args));
+            }
+
             SpawnFood();
         }
 
@@ -42,27 +55,15 @@ namespace ConsoleSnakeGame.Core.Scenes
             if (conDir + _lastUsedDirectoin == IntVector2.Zero)
             {
                 // Should not move snake backwards
-                MoveSnake(_lastUsedDirectoin);
+                _snakeMotor.Process(_lastUsedDirectoin, _snakeMovedInvokator);
             }
             else
             {
-                MoveSnake(conDir);
-                _lastUsedDirectoin = conDir;
-            }
-        }
-
-        private void MoveSnake(IntVector2 direction)
-        {
-            var position = Grid.GetNextPosition(direction, Snake.Head.Position);
-            var unit = Grid[position];
-
-            if (unit is not null)
-            {
-                Snake.MoveTo(unit);
-            }
-            else
-            {
-                Snake.MoveTo(position);
+                _snakeMotor.Process(conDir, () =>
+                {
+                    _snakeMovedInvokator();
+                    _lastUsedDirectoin = conDir;
+                });
             }
         }
 
@@ -90,6 +91,12 @@ namespace ConsoleSnakeGame.Core.Scenes
             }
             else
             {
+                if (Snake.Growth <= _growthForMaxSpeed)
+                {
+                    _snakeMotor.Speed = new Proportion((float) Snake.Growth / _growthForMaxSpeed)
+                        .InRange(((float, float))_snakeMotor.SpeedRange).ToProportion();
+                }
+
                 SpawnFood();
             }
         }

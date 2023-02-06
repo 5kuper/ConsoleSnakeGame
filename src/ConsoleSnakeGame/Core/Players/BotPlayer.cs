@@ -12,12 +12,12 @@ namespace ConsoleSnakeGame.Core.Players
         protected override void OnActivated(Environment env)
         {
             _grid = env.Scene.Grid;
-            env.Scene.Updated += Scene_Updated;
+            CharacterController.SubjectMoved += Character_Moved;
         }
 
         private IntVector2 SubjPos => CharacterController.Subject.Position;
 
-        private void Scene_Updated(object? sender, EventArgs e)
+        private void Character_Moved(object? sender, EventArgs e)
         {
             bool isRouteBuilt = _route is { Count: > 0 } || TryBuildRoute(out _route);
 

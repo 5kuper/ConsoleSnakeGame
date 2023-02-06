@@ -20,14 +20,12 @@ namespace ConsoleSnakeGame.Core
             private SnakeColor? _snakeColor;
             private IEnumerable<IntVector2>? _obstaclePositions;
 
-            public Settings()
-            {
-                _snakeColor = null;
-                _obstaclePositions = null;
-                ObstaclePlacement = null;
-            }
+            public int TickRate { get; init; } = 60;
 
-            public int TickRate { get; init; } = 5;
+            public Proportion StartSpeed { get; init; } = new(0.4f);
+            public Proportion LimitSpeed { get; init; } = new(0.8f);
+
+            public int GrowthForMaxSpeed { get; init; } = 50;
 
             public int GridWidth { get; init; } = 21;
             public int GridHeight { get; init; } = 15;
@@ -43,7 +41,7 @@ namespace ConsoleSnakeGame.Core
                 get
                 {
                     if (_finalSnakeGrowth is -1)
-                        _finalSnakeGrowth = MaxFinalGrowth - ObstaclePositions?.Count();
+                        _finalSnakeGrowth = MaxFinalGrowth - (ObstaclePositions?.Count() ?? 0);
 
                     return _finalSnakeGrowth;
                 }
@@ -92,10 +90,11 @@ namespace ConsoleSnakeGame.Core
                         $"than the minimum value ({MinGridHeight}).");
                 }
 
-                if (FinalSnakeGrowth > MaxFinalGrowth)
+                if (FinalSnakeGrowth < InitSnakeGrowth || FinalSnakeGrowth > MaxFinalGrowth)
                 {
-                    throw new InvalidOperationException("Final snake growth cannot be greater " +
-                        $"than the maximum value ({MaxFinalGrowth}).");
+                    throw new InvalidOperationException("Final snake growth cannot be" +
+                        $" less than the initial growth ({InitSnakeGrowth})" +
+                        $" or greater than the maximum value ({MaxFinalGrowth}).");
                 }
             }
         }
