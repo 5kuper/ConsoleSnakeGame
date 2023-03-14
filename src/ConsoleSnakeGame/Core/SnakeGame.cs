@@ -24,7 +24,7 @@ namespace ConsoleSnakeGame.Core
             Sets.Validate();
 
             var grassland = new Grassland(GetGrasslandCtorArgs(), out var snakeController);
-            InitiateRendering(grassland);
+            InitiateRendering(grassland, out var rendPurifer);
 
             scene = grassland;
 
@@ -33,6 +33,8 @@ namespace ConsoleSnakeGame.Core
 
             var input = new ConsoleInput(scene.SetPause, scene.TogglePause, scene.Terminate)
                                                 { ProgramName = "snake game" };
+
+            input.ProgramCancellationAsked += (_, _) => rendPurifer();
 
             var player = new TPlayer();
             player.Activate(new(scene, input), snakeController);
@@ -61,7 +63,7 @@ namespace ConsoleSnakeGame.Core
             return new(Sets.TickRate, grid, snake, new((Sets.StartSpeed, Sets.LimitSpeed), Sets.GrowthForMaxSpeed));
         }
 
-        private void InitiateRendering(Grassland scene)
+        private void InitiateRendering(Grassland scene, out Action purifer)
         {
             Console.Clear();
 
@@ -84,6 +86,8 @@ namespace ConsoleSnakeGame.Core
 
             renderer.ErrorOccurred += (_, _) => IsPaused = true;
             renderer.SetTarget(scene);
+
+            purifer = renderer.Purify;
 
             string GetGrowthStr() => Sets.FinalSnakeGrowth is not null
                 ? scene.Snake.Growth.ToString() + $"/{Sets.FinalSnakeGrowth}"

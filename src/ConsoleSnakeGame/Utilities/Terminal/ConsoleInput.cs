@@ -25,6 +25,7 @@ internal class ConsoleInput
     }
 
     public event EventHandler<KeyEventArgs>? KeyUnhandled;
+    public event EventHandler? ProgramCancellationAsked;
 
     public string ProgramName { get; set; } = "program";
 
@@ -92,6 +93,7 @@ internal class ConsoleInput
             Console.Write($"Are you sure you want to cancel the {ProgramName}? [y/N]: ");
 
             _isProgramCancelling = true;
+            OnProgramCancellationAsked(EventArgs.Empty);
         }
     }
 
@@ -107,5 +109,10 @@ internal class ConsoleInput
     protected virtual void OnKeyUnhandled(KeyEventArgs e)
     {
         KeyUnhandled?.Invoke(this, e);
+    }
+
+    protected virtual void OnProgramCancellationAsked(EventArgs e)
+    {
+        ProgramCancellationAsked?.Invoke(this, e);
     }
 }

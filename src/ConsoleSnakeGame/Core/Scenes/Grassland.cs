@@ -37,10 +37,10 @@ namespace ConsoleSnakeGame.Core.Scenes
             _snakeMotor = new(Snake, Grid, args.SpeedInfo.ValueRange);
             _growthForMaxSpeed = args.SpeedInfo.GrowthForMaxValue;
 
-            if (_growthForMaxSpeed < Snake.Growth)
+            if (_growthForMaxSpeed <= Snake.Growth)
             {
-                throw new ArgumentException("Growth for max speed cannot be less than" +
-                    " the current snake growth.", nameof(args));
+                throw new ArgumentException("Growth for max speed must be greater than" +
+                    " the initial snake growth.", nameof(args));
             }
 
             SpawnFood();

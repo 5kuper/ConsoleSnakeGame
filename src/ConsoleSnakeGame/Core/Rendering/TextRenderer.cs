@@ -55,6 +55,8 @@ namespace ConsoleSnakeGame.Core.Rendering
         private string UpperBorder => '╔' + VerticalLine + '╗';
         private string LowerBorder => '╚' + VerticalLine + '╝';
 
+        public void Purify() => _canvas.Clear(saveOldData: false);
+
         private void Render()
         {
             _canvas.Clear();
@@ -90,12 +92,12 @@ namespace ConsoleSnakeGame.Core.Rendering
 
             try
             {
-                _canvas.Display(true);
+                _canvas.Display(hideCursor: true);
             }
             catch (ConsoleBufferException)
             {
                 Console.Clear();
-                _canvas.Clear(false);
+                _canvas.Clear(saveOldData: false);
                 OnErrorOccurred(EventArgs.Empty);
             }
         }

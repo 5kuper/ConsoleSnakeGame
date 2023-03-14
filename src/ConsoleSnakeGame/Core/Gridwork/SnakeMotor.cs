@@ -35,7 +35,7 @@ namespace ConsoleSnakeGame.Core.Gridwork
                     new ArgumentException("Value doesn't match the speed range.", nameof(value));
 
                 var slowness = Proportion.OppositeOf(_speed);
-                _needSkips = (int)MathF.Round(MaxMoveSkips * slowness);
+                _needSkips = (int)MathF.Ceiling(MaxMoveSkips * slowness);
             }
         }
 
