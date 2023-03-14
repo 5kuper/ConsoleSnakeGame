@@ -1,5 +1,4 @@
-﻿using ConsoleSnakeGame.Core.Gridwork.ObstaclePlacements;
-using Utilities.Numerics;
+﻿using Utilities.Numerics;
 
 namespace ConsoleSnakeGame.Core.Gridwork.ObstaclePlacements.Rotatable
 {
@@ -23,6 +22,9 @@ namespace ConsoleSnakeGame.Core.Gridwork.ObstaclePlacements.Rotatable
         ╚═══════════════════════════════════════════╝
     */
 
+    [OP("walls1", true, false)]
+    [OP("walls2", true, true)]
+    [OP("walls3", false, true)]
     internal class WallsOP : ObstaclePlacement
     {
         private readonly bool _rotate, _mirror;

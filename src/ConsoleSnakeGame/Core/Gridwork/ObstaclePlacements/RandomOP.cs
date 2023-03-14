@@ -6,6 +6,7 @@ namespace ConsoleSnakeGame.Core.Gridwork.ObstaclePlacements
 {
     using OPs = List<ObstaclePlacement>;
 
+    [OP("random")]
     internal class RandomOP : ObstaclePlacement
     {
         private static readonly Lazy<OPs> _variants = new(() => new()

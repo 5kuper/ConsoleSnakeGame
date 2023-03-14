@@ -2,6 +2,7 @@
 
 namespace ConsoleSnakeGame.Core.Gridwork.ObstaclePlacements
 {
+    [OP("dispersion")]
     internal class DispersionOP : ObstaclePlacement
     {
         private static IEnumerable<IntVector2> GetSafeZone(GridInfo gi)

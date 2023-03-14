@@ -1,5 +1,4 @@
-﻿using ConsoleSnakeGame.Core.Gridwork.ObstaclePlacements;
-using Utilities.Numerics;
+﻿using Utilities.Numerics;
 
 namespace ConsoleSnakeGame.Core.Gridwork.ObstaclePlacements.Symmetrical
 {
@@ -23,6 +22,7 @@ namespace ConsoleSnakeGame.Core.Gridwork.ObstaclePlacements.Symmetrical
         ╚═══════════════════════════════════════════╝
      */
 
+    [OP("enclosure")]
     internal class EnclosureOP : ObstaclePlacement
     {
         protected override IEnumerable<IntVector2> CompoutePositions(GridInfo gi)
