@@ -5,6 +5,10 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <Authors>5kuper</Authors>
+    <Description>Text based snake game</Description>
+    <PackageProjectUrl>https://github.com/5kuper/ConsoleSnakeGame</PackageProjectUrl>
+    <Copyright>Copyright (c) 2022-2023 Dmitry "5kuper" Polyukhovich</Copyright>
   </PropertyGroup>
 
   <ItemGroup>
