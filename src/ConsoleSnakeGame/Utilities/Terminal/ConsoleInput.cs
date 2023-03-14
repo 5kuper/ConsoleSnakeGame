@@ -45,35 +45,40 @@ internal class ConsoleInput
     {
         Console.TreatControlCAsInput = true;
 
-        while (!cancellationToken.IsCancellationRequested)
+        while (true)
         {
-            var ki = Console.ReadKey(!_isProgramCancelling);
-
-            switch (ki)
+            lock (Console.In)
             {
-                case { Key: ConsoleKey.Y } when _isProgramCancelling:
-                    _programTerminator();
-                    Console.WriteLine();
-                    break;
+                var ki = Console.ReadKey(!_isProgramCancelling);
 
-                case { Key: not ConsoleKey.Y } when _isProgramCancelling:
-                    AvoidProgramCancellation();
-                    break;
+                if (cancellationToken.IsCancellationRequested) break;
 
-                case { Key: ConsoleKey.Enter or ConsoleKey.Spacebar }
-                        when _stopwatch.ElapsedMilliseconds > 500:
-                    _pauseToggle();
-                    _stopwatch.Restart();
-                    break;
+                switch (ki)
+                {
+                    case { Key: ConsoleKey.Y } when _isProgramCancelling:
+                        _programTerminator();
+                        Console.WriteLine();
+                        break;
 
-                case { Key: ConsoleKey.Escape }:
-                case { Modifiers: ConsoleModifiers.Control, Key: ConsoleKey.C }:
-                    AskConfirmationOfProgramCancellation();
-                    break;
+                    case { Key: not ConsoleKey.Y } when _isProgramCancelling:
+                        AvoidProgramCancellation();
+                        break;
 
-                default:
-                    OnKeyUnhandled(new(ki));
-                    break;
+                    case { Key: ConsoleKey.Enter or ConsoleKey.Spacebar }
+                            when _stopwatch.ElapsedMilliseconds > 500:
+                        _pauseToggle();
+                        _stopwatch.Restart();
+                        break;
+
+                    case { Key: ConsoleKey.Escape }:
+                    case { Modifiers: ConsoleModifiers.Control, Key: ConsoleKey.C }:
+                        AskConfirmationOfProgramCancellation();
+                        break;
+
+                    default:
+                        OnKeyUnhandled(new(ki));
+                        break;
+                }
             }
         }
 
