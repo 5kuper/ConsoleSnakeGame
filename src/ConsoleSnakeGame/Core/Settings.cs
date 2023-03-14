@@ -1,5 +1,7 @@
 ﻿using ConsoleSnakeGame.Core.Gridwork.ObstaclePlacements;
 using ConsoleSnakeGame.Core.Rendering;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Utilities.Numerics;
 
 namespace ConsoleSnakeGame.Core
@@ -20,6 +22,9 @@ namespace ConsoleSnakeGame.Core
             private SnakeColor? _snakeColor;
             private IEnumerable<IntVector2>? _obstaclePositions;
 
+            public int GridWidth { get; init; } = 21;
+            public int GridHeight { get; init; } = 15;
+
             public int TickRate { get; init; } = 60;
 
             public Proportion StartSpeed { get; init; } = new(0.4f);
@@ -27,15 +32,16 @@ namespace ConsoleSnakeGame.Core
 
             public int GrowthForMaxSpeed { get; init; } = 50;
 
-            public int GridWidth { get; init; } = 21;
-            public int GridHeight { get; init; } = 15;
-
+            [JsonIgnore]
             public ObstaclePlacement? ObstaclePlacement { get; init; }
 
+            [JsonIgnore]
             public int MaxFinalGrowth => GridWidth * GridHeight;
 
+            [JsonIgnore]
             public IntVector2 SpawnPosition => GetSpawnPosition(GridWidth, GridHeight);
 
+            [JsonIgnore]
             public int? FinalSnakeGrowth
             {
                 get
@@ -48,6 +54,7 @@ namespace ConsoleSnakeGame.Core
                 init => _finalSnakeGrowth = value;
             }
 
+            [JsonIgnore]
             public SnakeColor SnakeColor
             {
                 get
@@ -58,6 +65,7 @@ namespace ConsoleSnakeGame.Core
                 init => _snakeColor = value;
             }
 
+            [JsonIgnore]
             public IEnumerable<IntVector2>? ObstaclePositions
             {
                 get
@@ -75,6 +83,26 @@ namespace ConsoleSnakeGame.Core
             public static IntVector2 GetSpawnPosition(int gridWidth, int gridHeight)
             {
                 return new(gridWidth / 2, gridHeight / 2);
+            }
+
+            public static Settings Construct(string? jsonConfig, IEnumerable<string>? obstacles, SnakeColor? color)
+            {
+                var result = jsonConfig is not null ? JsonSerializer.Deserialize<Settings>(jsonConfig)! : new();
+
+                if (obstacles?.Any() == true)
+                {
+                    var op = OPAttribute.Create(obstacles);
+                    var gridLength = new IntVector2(result.GridWidth, result.GridHeight);
+                    result._obstaclePositions = op.GetPositions(gridLength);
+                }
+
+                if (color != null) result._snakeColor = color;
+                return result;
+            }
+
+            public static string GetDefaultJsonConfig()
+            {
+                return JsonSerializer.Serialize(new Settings(), new JsonSerializerOptions { WriteIndented = true });
             }
 
             public void Validate()

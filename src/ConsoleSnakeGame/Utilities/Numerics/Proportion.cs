@@ -1,11 +1,14 @@
-﻿namespace Utilities.Numerics;
+﻿using System.Text.Json.Serialization;
+
+namespace Utilities.Numerics;
 
 internal readonly struct Proportion : IEquatable<Proportion>, IComparable<Proportion>
 {
-    public Proportion(float val)
+    [JsonConstructor]
+    public Proportion(float value)
     {
-        Value = val is >= 0 and <= 1 ? val : throw
-            new ArgumentException("Value must be in range from 0 to 1.", nameof(val));
+        Value = value is >= 0 and <= 1 ? value : throw
+            new ArgumentException("Value must be in range from 0 to 1.", nameof(value));
     }
 
     public Proportion(float number, Range<float> range)
@@ -18,10 +21,10 @@ internal readonly struct Proportion : IEquatable<Proportion>, IComparable<Propor
 
     public float Value { get; }
 
-    public float Percent => Value * 100;
+    [JsonIgnore] public float Percent => Value * 100;
 
-    public bool IsMin => Value is 0;
-    public bool IsMax => Value is 1;
+    [JsonIgnore] public bool IsMin => Value is 0;
+    [JsonIgnore] public bool IsMax => Value is 1;
 
     public static Proportion FromPercent(float pct) => new(pct / 100);
     public static Proportion OppositeOf(Proportion other) => new(1 - other);

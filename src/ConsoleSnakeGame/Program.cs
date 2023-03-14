@@ -1,23 +1,47 @@
-﻿using ConsoleSnakeGame.Core;
+﻿using CommandLine;
+using ConsoleSnakeGame.Core;
 using ConsoleSnakeGame.Core.Players;
+using ConsoleSnakeGame.Options;
+using Figgle;
 
-var settings = new SnakeGame.Settings();
+Parser.Default.ParseArguments<PlayOptions, ExtraOptions>(args)
+    .WithParsedAsync<PlayOptions>(LetsPlay).Result
+    .WithParsed<ExtraOptions>(DoExtra);
 
-Console.Write("Let a bot play? [y/N]: ");
-
-Game game = Console.ReadKey().Key switch
+async Task LetsPlay(PlayOptions options)
 {
-    ConsoleKey.Y => new SnakeGame<BotPlayer>(settings),
-    _ => new SnakeGame<UserPlayer>(settings)
-};
+    Console.WriteLine(FiggleFonts.Standard.Render("Snake"));
+    var settings = options.GetSettings();
 
-game.Start();
+    Console.Write("Let a bot play? [y/N]: ");
 
-try
-{
-    await game;
+    Game game = Console.ReadKey().Key switch
+    {
+        ConsoleKey.Y => new SnakeGame<BotPlayer>(settings),
+        _ => new SnakeGame<UserPlayer>(settings)
+    };
+
+    game.Start();
+
+    try
+    {
+        await game;
+    }
+    catch (OperationCanceledException)
+    {
+        Console.WriteLine("The game has been canceled :C");
+    }
+    catch (Exception e)
+    {
+        Console.WriteLine("Oops: " + e.Message);
+    }
 }
-catch (OperationCanceledException)
+
+void DoExtra(ExtraOptions options)
 {
-    Console.WriteLine("The game has been canceled :C");
+    if (options.OPsFlag)
+    {
+        var output = ExtraOptions.GetOPsString();
+        Console.WriteLine(output);
+    }
 }

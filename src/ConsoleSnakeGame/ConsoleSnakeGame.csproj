@@ -8,7 +8,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="CommandLineParser" Version="2.9.1" />
     <PackageReference Include="CommunityToolkit.Common" Version="8.0.0" />
+    <PackageReference Include="Figgle" Version="0.5.1" />
   </ItemGroup>
 
 </Project>
