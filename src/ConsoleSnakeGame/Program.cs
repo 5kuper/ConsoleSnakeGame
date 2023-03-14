@@ -23,7 +23,7 @@ catch (Exception e)
 async Task LetsPlay(PlayOptions options)
 {
     var settings = options.GetSettings();
-    Console.WriteLine(FiggleFonts.Standard.Render("Snake"));
+    Console.WriteLine(FiggleFonts.Standard.Render("ConSnake"));
 
     Console.Write("Let a bot play? [y/N]: ");
 
